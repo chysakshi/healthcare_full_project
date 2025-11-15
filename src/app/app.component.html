@@ -1,0 +1,27 @@
+<div class="app-shell">
+  <header class="top-bar">
+    <div class="brand">
+      <span class="brand-mark" aria-hidden="true">+</span>
+      <div>
+        <p class="brand-title">HealthCare Full Project</p>
+        <p class="brand-subtitle">Clinical Operations Platform</p>
+      </div>
+    </div>
+  </header>
+
+  <aside class="sidebar" aria-label="Main navigation">
+    <nav>
+      <a
+        *ngFor="let item of navItems"
+        [routerLink]="item.link"
+        routerLinkActive="is-active"
+      >
+        {{ item.label }}
+      </a>
+    </nav>
+  </aside>
+
+  <main class="content" aria-live="polite">
+    <router-outlet></router-outlet>
+  </main>
+</div>
