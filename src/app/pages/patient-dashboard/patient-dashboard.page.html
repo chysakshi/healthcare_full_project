@@ -7,27 +7,26 @@
   <section class="kpi-grid" aria-label="Patient summary cards">
     <article class="card">
       <h2>Upcoming Appointments</h2>
-      <strong>3</strong>
-      <p>Next consultation: Today, 5:30 PM</p>
+      <strong>{{ upcomingAppointments }}</strong>
+      <p>Next consultation: {{ nextAppointmentLabel }}</p>
     </article>
     <article class="card">
       <h2>Active Prescriptions</h2>
-      <strong>4</strong>
-      <p>Medication review due in 2 days</p>
+      <strong>{{ activePrescriptions }}</strong>
+      <p>Medication profile synced from clinical records.</p>
     </article>
     <article class="card">
       <h2>Pending Reports</h2>
-      <strong>1</strong>
-      <p>Lab report expected by tomorrow</p>
+      <strong>{{ pendingReports }}</strong>
+      <p>Reports awaiting publication in the diagnostics center.</p>
     </article>
   </section>
 
   <section class="panel">
     <h2>Recent Activity</h2>
+    <p class="meta">Outstanding billing items: {{ pendingInvoices }}</p>
     <ul>
-      <li>Appointment confirmed with Dr. Mehra</li>
-      <li>Prescription updated for blood pressure medication</li>
-      <li>Invoice paid successfully</li>
+      <li *ngFor="let entry of recentActivity">{{ entry }}</li>
     </ul>
   </section>
 </section>
