@@ -9,11 +9,46 @@ import {
 } from '../models/healthcare.models';
 
 export const usersSeed: User[] = [
-  { id: 'p-001', fullName: 'Kavya Sharma', email: 'kavya.sharma@healthcare.com', role: 'patient', isActive: true },
-  { id: 'p-002', fullName: 'Ravi Nair', email: 'ravi.nair@healthcare.com', role: 'patient', isActive: true },
-  { id: 'd-001', fullName: 'Dr. Arjun Mehra', email: 'arjun.mehra@healthcare.com', role: 'doctor', isActive: true },
-  { id: 'd-002', fullName: 'Dr. Nisha Patel', email: 'nisha.patel@healthcare.com', role: 'doctor', isActive: true },
-  { id: 'a-001', fullName: 'Priya Verma', email: 'priya.verma@healthcare.com', role: 'admin', isActive: true }
+  {
+    id: 'p-001',
+    fullName: 'Kavya Sharma',
+    email: 'kavya.sharma@healthcare.com',
+    password: 'Patient@123',
+    role: 'patient',
+    isActive: true
+  },
+  {
+    id: 'p-002',
+    fullName: 'Ravi Nair',
+    email: 'ravi.nair@healthcare.com',
+    password: 'Patient@123',
+    role: 'patient',
+    isActive: true
+  },
+  {
+    id: 'd-001',
+    fullName: 'Dr. Arjun Mehra',
+    email: 'arjun.mehra@healthcare.com',
+    password: 'Doctor@123',
+    role: 'doctor',
+    isActive: true
+  },
+  {
+    id: 'd-002',
+    fullName: 'Dr. Nisha Patel',
+    email: 'nisha.patel@healthcare.com',
+    password: 'Doctor@123',
+    role: 'doctor',
+    isActive: true
+  },
+  {
+    id: 'a-001',
+    fullName: 'Priya Verma',
+    email: 'priya.verma@healthcare.com',
+    password: 'Admin@123',
+    role: 'admin',
+    isActive: true
+  }
 ];
 
 export const doctorProfilesSeed: DoctorProfile[] = [

@@ -5,23 +5,45 @@
   </header>
 
   <div class="layout">
-    <form class="auth-card" aria-label="Sign in form">
+    <form class="auth-card" aria-label="Sign in form" [formGroup]="form" (ngSubmit)="onSubmit()">
       <h2>Sign in</h2>
 
       <label for="email">Work Email</label>
-      <input id="email" type="email" placeholder="name@hospital.com" />
+      <input id="email" type="email" formControlName="email" placeholder="name@hospital.com" />
+      <small class="field-error" *ngIf="form.controls.email.touched && form.controls.email.invalid">
+        Enter a valid email address.
+      </small>
 
       <label for="password">Password</label>
-      <input id="password" type="password" placeholder="Enter password" />
+      <input id="password" type="password" formControlName="password" placeholder="Enter password" />
+      <small class="field-error" *ngIf="form.controls.password.touched && form.controls.password.invalid">
+        Password must be at least 8 characters.
+      </small>
 
       <label for="role">Role</label>
-      <select id="role">
-        <option>Patient</option>
-        <option>Doctor</option>
-        <option>Admin</option>
+      <select id="role" formControlName="role">
+        <option value="patient">Patient</option>
+        <option value="doctor">Doctor</option>
+        <option value="admin">Admin</option>
       </select>
 
-      <button type="button">Continue</button>
+      <p class="auth-error" *ngIf="errorMessage">{{ errorMessage }}</p>
+
+      <button type="submit" [disabled]="isSubmitting">
+        {{ isSubmitting ? 'Signing in...' : 'Continue' }}
+      </button>
+
+      <p class="auth-link">
+        New here?
+        <a routerLink="/signup">Create an account</a>
+      </p>
+
+      <div class="credentials">
+        <p><strong>Sample credentials</strong></p>
+        <p>Patient: kavya.sharma&#64;healthcare.com / Patient&#64;123</p>
+        <p>Doctor: arjun.mehra&#64;healthcare.com / Doctor&#64;123</p>
+        <p>Admin: priya.verma&#64;healthcare.com / Admin&#64;123</p>
+      </div>
     </form>
 
     <aside class="capabilities" aria-label="Platform capabilities">

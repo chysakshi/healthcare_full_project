@@ -31,6 +31,7 @@
 	grid-area: topbar;
 	display: flex;
 	align-items: center;
+	justify-content: space-between;
 	padding: 0 20px;
 	border-bottom: 1px solid var(--border);
 	background: color-mix(in srgb, var(--surface) 92%, #d1fae5 8%);
@@ -68,6 +69,49 @@
 	margin: 2px 0 0;
 	color: var(--muted);
 	font-size: 0.82rem;
+}
+
+.session {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+}
+
+.session-name {
+	margin: 0;
+	font-weight: 700;
+	color: var(--title);
+}
+
+.session-role {
+	margin: 0;
+	padding: 4px 8px;
+	border-radius: 999px;
+	background: var(--accent-soft);
+	color: var(--accent);
+	font-size: 0.78rem;
+	font-weight: 700;
+}
+
+.session button {
+	border: 1px solid var(--border);
+	background: #ffffff;
+	color: var(--text);
+	font-weight: 600;
+	border-radius: 8px;
+	padding: 6px 10px;
+	cursor: pointer;
+}
+
+.session button:hover {
+	border-color: var(--accent);
+	color: var(--accent);
+}
+
+.session-empty {
+	margin: 0;
+	color: var(--muted);
+	font-weight: 600;
 }
 
 .sidebar {
@@ -122,6 +166,14 @@
 		border-right: 0;
 		border-bottom: 1px solid var(--border);
 		padding: 12px;
+	}
+
+	.top-bar {
+		padding: 0 12px;
+	}
+
+	.session {
+		gap: 6px;
 	}
 
 	.sidebar nav {

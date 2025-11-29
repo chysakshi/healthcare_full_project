@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Observable, of } from 'rxjs';
+import { BehaviorSubject, Observable, of } from 'rxjs';
 import {
   Appointment,
   DoctorProfile,
@@ -23,8 +23,23 @@ import {
   providedIn: 'root'
 })
 export class HealthcareDataService {
+  private readonly usersSubject = new BehaviorSubject<User[]>([...usersSeed]);
+
   getUsers(): Observable<User[]> {
-    return of(usersSeed);
+    return this.usersSubject.asObservable();
+  }
+
+  getUsersSnapshot(): User[] {
+    return this.usersSubject.value;
+  }
+
+  findUserByEmail(email: string): User | undefined {
+    const normalizedEmail = email.trim().toLowerCase();
+    return this.usersSubject.value.find((user) => user.email.toLowerCase() === normalizedEmail);
+  }
+
+  addUser(user: User): void {
+    this.usersSubject.next([...this.usersSubject.value, user]);
   }
 
   getDoctorProfiles(): Observable<DoctorProfile[]> {

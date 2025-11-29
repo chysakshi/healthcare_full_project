@@ -7,6 +7,16 @@
         <p class="brand-subtitle">Clinical Operations Platform</p>
       </div>
     </div>
+
+    <div class="session" *ngIf="currentUser$ | async as currentUser; else loggedOutState">
+      <p class="session-name">{{ currentUser.fullName }}</p>
+      <p class="session-role">{{ currentUser.role | titlecase }}</p>
+      <button type="button" (click)="logout()">Logout</button>
+    </div>
+
+    <ng-template #loggedOutState>
+      <p class="session-empty">Not signed in</p>
+    </ng-template>
   </header>
 
   <aside class="sidebar" aria-label="Main navigation">

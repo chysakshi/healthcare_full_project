@@ -1,0 +1,40 @@
+<section class="signup-page">
+  <header>
+    <h1>Create Patient Account</h1>
+    <p>Set up your profile to manage appointments, prescriptions, and reports.</p>
+  </header>
+
+  <form class="signup-card" [formGroup]="form" (ngSubmit)="onSubmit()" aria-label="Create account form">
+    <label for="fullName">Full Name</label>
+    <input id="fullName" type="text" formControlName="fullName" placeholder="Your full name" />
+    <small class="field-error" *ngIf="form.controls.fullName.touched && form.controls.fullName.invalid">
+      Name must be at least 3 characters.
+    </small>
+
+    <label for="email">Email</label>
+    <input id="email" type="email" formControlName="email" placeholder="name@hospital.com" />
+    <small class="field-error" *ngIf="form.controls.email.touched && form.controls.email.invalid">
+      Enter a valid email address.
+    </small>
+
+    <label for="password">Password</label>
+    <input id="password" type="password" formControlName="password" placeholder="Choose a secure password" />
+    <small class="field-error" *ngIf="form.controls.password.touched && form.controls.password.invalid">
+      Password must be at least 8 characters.
+    </small>
+
+    <label for="confirmPassword">Confirm Password</label>
+    <input id="confirmPassword" type="password" formControlName="confirmPassword" placeholder="Re-enter password" />
+
+    <p class="auth-error" *ngIf="errorMessage">{{ errorMessage }}</p>
+
+    <button type="submit" [disabled]="isSubmitting">
+      {{ isSubmitting ? 'Creating account...' : 'Create Account' }}
+    </button>
+
+    <p class="auth-link">
+      Already have an account?
+      <a routerLink="/login">Sign in</a>
+    </p>
+  </form>
+</section>

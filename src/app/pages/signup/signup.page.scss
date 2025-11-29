@@ -1,0 +1,76 @@
+.signup-page {
+  display: grid;
+  gap: 18px;
+  max-width: 640px;
+}
+
+header h1 {
+  margin: 0;
+  color: #0f172a;
+  font-size: 2rem;
+}
+
+header p {
+  margin: 8px 0 0;
+  color: #475569;
+}
+
+.signup-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 20px;
+  display: grid;
+  gap: 10px;
+}
+
+label {
+  font-weight: 600;
+  color: #334155;
+}
+
+input {
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  padding: 10px 12px;
+  font: inherit;
+}
+
+button {
+  margin-top: 8px;
+  border: 0;
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-weight: 700;
+  color: #ffffff;
+  background: linear-gradient(135deg, #0f766e, #0e7490);
+  cursor: pointer;
+}
+
+button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.field-error {
+  margin-top: -4px;
+  color: #b91c1c;
+  font-size: 0.82rem;
+}
+
+.auth-error {
+  margin: 4px 0 0;
+  color: #b91c1c;
+  font-weight: 600;
+}
+
+.auth-link {
+  margin: 6px 0 0;
+  color: #334155;
+}
+
+.auth-link a {
+  color: #0e7490;
+  text-decoration: none;
+  font-weight: 700;
+}
