@@ -147,6 +147,15 @@
 	border-color: color-mix(in srgb, var(--accent) 35%, white 65%);
 }
 
+.sidebar a.is-disabled {
+	filter: blur(1.6px);
+	opacity: 0.55;
+	pointer-events: none;
+	user-select: none;
+	background: #f8fafc;
+	border-color: #e2e8f0;
+}
+
 .content {
 	grid-area: content;
 	padding: 24px;

@@ -20,15 +20,33 @@
   </header>
 
   <aside class="sidebar" aria-label="Main navigation">
-    <nav>
+    <nav *ngIf="currentUser$ | async as currentUser; else guestNavigation">
       <a
         *ngFor="let item of navItems"
         [routerLink]="item.link"
         routerLinkActive="is-active"
+        [class.is-disabled]="!canAccess(item, currentUser)"
+        [attr.aria-disabled]="!canAccess(item, currentUser)"
+        (click)="onNavClick($event, item, currentUser)"
       >
         {{ item.label }}
       </a>
     </nav>
+
+    <ng-template #guestNavigation>
+      <nav>
+        <a
+          *ngFor="let item of navItems"
+          [routerLink]="item.link"
+          routerLinkActive="is-active"
+          [class.is-disabled]="!canAccess(item, null)"
+          [attr.aria-disabled]="!canAccess(item, null)"
+          (click)="onNavClick($event, item, null)"
+        >
+          {{ item.label }}
+        </a>
+      </nav>
+    </ng-template>
   </aside>
 
   <main class="content" aria-live="polite">
