@@ -24,9 +24,67 @@
 
   <section class="panel">
     <h2>Recent Activity</h2>
-    <p class="meta">Outstanding billing items: {{ pendingInvoices }}</p>
+    <p class="meta">Outstanding billing items: {{ pendingInvoices }} | Amount due: INR {{ outstandingAmount }}</p>
     <ul>
       <li *ngFor="let entry of recentActivity">{{ entry }}</li>
     </ul>
+  </section>
+
+  <section class="details-grid" aria-label="Patient care details">
+    <article class="panel">
+      <h2>Upcoming Appointments</h2>
+      <ul class="compact-list" *ngIf="appointmentList.length; else noAppointments">
+        <li *ngFor="let appointment of appointmentList">
+          <strong>{{ appointment.dateTime }}</strong>
+          <span>{{ appointment.doctor }} | {{ appointment.mode }}</span>
+          <span>{{ appointment.reason }}</span>
+        </li>
+      </ul>
+      <ng-template #noAppointments>
+        <p class="empty">No scheduled appointments.</p>
+      </ng-template>
+    </article>
+
+    <article class="panel">
+      <h2>Active Prescriptions</h2>
+      <ul class="compact-list" *ngIf="prescriptionList.length; else noPrescriptions">
+        <li *ngFor="let prescription of prescriptionList">
+          <strong>{{ prescription.medication }}</strong>
+          <span>{{ prescription.dosage }}</span>
+          <span>Duration: {{ prescription.durationDays }} days</span>
+        </li>
+      </ul>
+      <ng-template #noPrescriptions>
+        <p class="empty">No active prescriptions.</p>
+      </ng-template>
+    </article>
+
+    <article class="panel">
+      <h2>Medical Reports</h2>
+      <ul class="compact-list" *ngIf="reportList.length; else noReports">
+        <li *ngFor="let report of reportList">
+          <strong>{{ report.reportType }}</strong>
+          <span>Created: {{ report.createdAt | date:'mediumDate' }}</span>
+          <span>Status: {{ report.status | titlecase }}</span>
+        </li>
+      </ul>
+      <ng-template #noReports>
+        <p class="empty">No reports available.</p>
+      </ng-template>
+    </article>
+
+    <article class="panel">
+      <h2>Billing Summary</h2>
+      <ul class="compact-list" *ngIf="invoiceList.length; else noInvoices">
+        <li *ngFor="let invoice of invoiceList">
+          <strong>{{ invoice.id }} - INR {{ invoice.amount }}</strong>
+          <span>Issued: {{ invoice.issuedAt | date:'mediumDate' }}</span>
+          <span>Status: {{ invoice.status | titlecase }}</span>
+        </li>
+      </ul>
+      <ng-template #noInvoices>
+        <p class="empty">No invoices found.</p>
+      </ng-template>
+    </article>
   </section>
 </section>

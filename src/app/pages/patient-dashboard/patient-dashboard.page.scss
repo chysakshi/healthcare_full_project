@@ -60,8 +60,48 @@ header p {
   font-weight: 600;
 }
 
+.details-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.compact-list {
+  margin: 12px 0 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 10px;
+}
+
+.compact-list li {
+  display: grid;
+  gap: 4px;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 10px 12px;
+}
+
+.compact-list strong {
+  color: #0f172a;
+}
+
+.compact-list span {
+  color: #64748b;
+  font-size: 0.9rem;
+}
+
+.empty {
+  margin: 12px 0 0;
+  color: #64748b;
+}
+
 @media (max-width: 900px) {
   .kpi-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .details-grid {
     grid-template-columns: 1fr;
   }
 }
