@@ -14,6 +14,10 @@ export interface DoctorProfile {
   userId: string;
   specialization: string;
   experienceYears: number;
+  consultationFee: number;
+  languages: string[];
+  availableDays: string[];
+  rating: number;
 }
 
 export type AppointmentStatus = 'scheduled' | 'checked-in' | 'completed' | 'cancelled';

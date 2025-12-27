@@ -46,6 +46,29 @@ export class HealthcareDataService {
     return of(doctorProfilesSeed);
   }
 
+  getDoctorDirectory(): Observable<Array<{ user: User; profile: DoctorProfile }>> {
+    const doctors = this.usersSubject.value.filter((user) => user.role === 'doctor' && user.isActive);
+    const directory = doctors
+      .map((doctor) => {
+        const profile = doctorProfilesSeed.find((entry) => entry.userId === doctor.id);
+        return profile ? { user: doctor, profile } : undefined;
+      })
+      .filter((entry): entry is { user: User; profile: DoctorProfile } => !!entry);
+
+    return of(directory);
+  }
+
+  getDoctorProfileByUserId(userId: string): Observable<{ user: User; profile: DoctorProfile } | null> {
+    const user = this.usersSubject.value.find((entry) => entry.id === userId && entry.role === 'doctor');
+    const profile = doctorProfilesSeed.find((entry) => entry.userId === userId);
+
+    if (!user || !profile) {
+      return of(null);
+    }
+
+    return of({ user, profile });
+  }
+
   getAppointments(): Observable<Appointment[]> {
     return of(appointmentsSeed);
   }

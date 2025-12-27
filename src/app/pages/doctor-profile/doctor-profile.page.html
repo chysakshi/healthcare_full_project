@@ -1,0 +1,45 @@
+<section class="profile" *ngIf="doctor && profile; else unavailableProfile">
+  <header>
+    <h1>{{ doctor.fullName }}</h1>
+    <p>{{ profile.specialization }}</p>
+  </header>
+
+  <section class="profile-grid" aria-label="Doctor profile information">
+    <article class="panel">
+      <h2>Professional Summary</h2>
+      <ul>
+        <li>Experience: {{ profile.experienceYears }} years</li>
+        <li>Consultation Fee: INR {{ profile.consultationFee }}</li>
+        <li>Rating: {{ profile.rating }}</li>
+      </ul>
+    </article>
+
+    <article class="panel">
+      <h2>Languages and Availability</h2>
+      <ul>
+        <li>Languages: {{ profile.languages.join(', ') }}</li>
+        <li>Available Days: {{ profile.availableDays.join(', ') }}</li>
+      </ul>
+    </article>
+
+    <article class="panel full-width">
+      <h2>Upcoming Consultation Slots</h2>
+      <ul *ngIf="upcomingSlots.length; else noSlots">
+        <li *ngFor="let slot of upcomingSlots">{{ slot }}</li>
+      </ul>
+      <ng-template #noSlots>
+        <p class="empty">No upcoming slots are currently scheduled.</p>
+      </ng-template>
+    </article>
+  </section>
+
+  <a class="back-link" routerLink="/patient/doctors">Back to Doctor Directory</a>
+</section>
+
+<ng-template #unavailableProfile>
+  <section class="profile">
+    <h1>Doctor Profile</h1>
+    <p class="empty">The selected doctor profile is not available.</p>
+    <a class="back-link" routerLink="/patient/doctors">Back to Doctor Directory</a>
+  </section>
+</ng-template>

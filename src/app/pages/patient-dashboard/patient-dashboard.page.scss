@@ -60,6 +60,14 @@ header p {
   font-weight: 600;
 }
 
+.directory-link {
+  margin-top: 12px;
+  width: fit-content;
+  text-decoration: none;
+  color: #0e7490;
+  font-weight: 700;
+}
+
 .details-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));

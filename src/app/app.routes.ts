@@ -1,7 +1,9 @@
 import { Routes } from '@angular/router';
 import { guestOnlyGuard, roleGuard } from './core/guards/auth.guards';
 import { AdminDashboardPageComponent } from './pages/admin-dashboard/admin-dashboard.page';
+import { DoctorDirectoryPageComponent } from './pages/doctor-directory/doctor-directory.page';
 import { DoctorDashboardPageComponent } from './pages/doctor-dashboard/doctor-dashboard.page';
+import { DoctorProfilePageComponent } from './pages/doctor-profile/doctor-profile.page';
 import { LoginPageComponent } from './pages/login/login.page';
 import { NotFoundPageComponent } from './pages/not-found/not-found.page';
 import { PatientDashboardPageComponent } from './pages/patient-dashboard/patient-dashboard.page';
@@ -12,6 +14,8 @@ export const routes: Routes = [
 	{ path: 'login', component: LoginPageComponent, canActivate: [guestOnlyGuard] },
 	{ path: 'signup', component: SignupPageComponent, canActivate: [guestOnlyGuard] },
 	{ path: 'patient/dashboard', component: PatientDashboardPageComponent, canActivate: [roleGuard('patient')] },
+	{ path: 'patient/doctors', component: DoctorDirectoryPageComponent, canActivate: [roleGuard('patient')] },
+	{ path: 'patient/doctors/:doctorId', component: DoctorProfilePageComponent, canActivate: [roleGuard('patient')] },
 	{ path: 'doctor/dashboard', component: DoctorDashboardPageComponent, canActivate: [roleGuard('doctor')] },
 	{ path: 'admin/dashboard', component: AdminDashboardPageComponent, canActivate: [roleGuard('admin')] },
 	{ path: '**', component: NotFoundPageComponent }

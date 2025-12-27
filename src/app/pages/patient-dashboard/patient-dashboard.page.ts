@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterLink } from '@angular/router';
 import { HealthcareDataService } from '../../core/services/healthcare-data.service';
 import { Appointment, Invoice, MedicalReport, Prescription, User } from '../../core/models/healthcare.models';
 import { AuthService } from '../../core/services/auth.service';
@@ -7,7 +8,7 @@ import { AuthService } from '../../core/services/auth.service';
 @Component({
   selector: 'app-patient-dashboard-page',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterLink],
   templateUrl: './patient-dashboard.page.html',
   styleUrl: './patient-dashboard.page.scss'
 })

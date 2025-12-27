@@ -1,0 +1,27 @@
+<section class="directory">
+  <header>
+    <h1>Doctor Directory</h1>
+    <p>Browse specialists, review availability, and open complete doctor profiles.</p>
+  </header>
+
+  <section class="directory-grid" aria-label="Doctor directory">
+    <article class="doctor-card" *ngFor="let doctor of doctors">
+      <h2>{{ doctor.user.fullName }}</h2>
+      <p class="specialization">{{ doctor.profile.specialization }}</p>
+
+      <div class="meta-row">
+        <span>{{ doctor.profile.experienceYears }} years experience</span>
+        <span>Rating {{ doctor.profile.rating }}</span>
+      </div>
+
+      <div class="meta-row">
+        <span>Fee: INR {{ doctor.profile.consultationFee }}</span>
+        <span>{{ doctor.profile.languages.join(', ') }}</span>
+      </div>
+
+      <p class="availability">Available: {{ doctor.profile.availableDays.join(', ') }}</p>
+
+      <a [routerLink]="['/patient/doctors', doctor.user.id]">View Profile</a>
+    </article>
+  </section>
+</section>

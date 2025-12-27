@@ -52,8 +52,26 @@ export const usersSeed: User[] = [
 ];
 
 export const doctorProfilesSeed: DoctorProfile[] = [
-  { id: 'dp-001', userId: 'd-001', specialization: 'Cardiology', experienceYears: 11 },
-  { id: 'dp-002', userId: 'd-002', specialization: 'General Medicine', experienceYears: 8 }
+  {
+    id: 'dp-001',
+    userId: 'd-001',
+    specialization: 'Cardiology',
+    experienceYears: 11,
+    consultationFee: 1200,
+    languages: ['English', 'Hindi'],
+    availableDays: ['Mon', 'Wed', 'Fri'],
+    rating: 4.8
+  },
+  {
+    id: 'dp-002',
+    userId: 'd-002',
+    specialization: 'General Medicine',
+    experienceYears: 8,
+    consultationFee: 900,
+    languages: ['English', 'Hindi', 'Marathi'],
+    availableDays: ['Tue', 'Thu', 'Sat'],
+    rating: 4.6
+  }
 ];
 
 export const appointmentsSeed: Appointment[] = [
