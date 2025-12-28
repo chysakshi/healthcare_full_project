@@ -31,6 +31,44 @@
     <a class="directory-link" routerLink="/patient/doctors">Browse Doctor Directory</a>
   </section>
 
+  <section class="panel booking-panel">
+    <h2>Book Appointment</h2>
+    <p class="booking-text">Select a doctor, choose consultation mode, and send your request instantly.</p>
+
+    <form class="booking-form" [formGroup]="bookingForm" (ngSubmit)="submitBooking()">
+      <label for="doctorId">Doctor</label>
+      <select id="doctorId" formControlName="doctorId">
+        <option value="" disabled>Select doctor</option>
+        <option *ngFor="let doctor of doctorOptions" [value]="doctor.id">
+          {{ doctor.name }} - {{ doctor.specialization }} - INR {{ doctor.fee }}
+        </option>
+      </select>
+
+      <label for="startsAt">Date and Time</label>
+      <input id="startsAt" type="datetime-local" formControlName="startsAt" />
+
+      <label for="mode">Consultation Mode</label>
+      <select id="mode" formControlName="mode">
+        <option value="in-clinic">In-Clinic</option>
+        <option value="virtual">Virtual</option>
+      </select>
+
+      <label for="reason">Reason</label>
+      <textarea id="reason" rows="3" formControlName="reason" placeholder="Describe symptoms or consultation purpose"></textarea>
+
+      <small class="form-error" *ngIf="bookingForm.touched && bookingForm.invalid">
+        Please complete all fields with a valid reason.
+      </small>
+
+      <p class="success" *ngIf="bookingMessage">{{ bookingMessage }}</p>
+      <p class="error" *ngIf="bookingError">{{ bookingError }}</p>
+
+      <button type="submit" [disabled]="isBooking">
+        {{ isBooking ? 'Submitting...' : 'Submit Appointment Request' }}
+      </button>
+    </form>
+  </section>
+
   <section class="details-grid" aria-label="Patient care details">
     <article class="panel">
       <h2>Upcoming Appointments</h2>
@@ -85,6 +123,20 @@
       </ul>
       <ng-template #noInvoices>
         <p class="empty">No invoices found.</p>
+      </ng-template>
+    </article>
+
+    <article class="panel full-width">
+      <h2>Appointment Timeline</h2>
+      <ul class="compact-list" *ngIf="appointmentTimeline.length; else noTimeline">
+        <li *ngFor="let entry of appointmentTimeline" class="timeline-item">
+          <strong>{{ entry.dateTime }} | {{ entry.doctor }}</strong>
+          <span>{{ entry.reason }} - {{ entry.mode }}</span>
+          <span class="status" [class]="'status ' + entry.status">{{ entry.status | titlecase }}</span>
+        </li>
+      </ul>
+      <ng-template #noTimeline>
+        <p class="empty">No appointments in timeline.</p>
       </ng-template>
     </article>
   </section>

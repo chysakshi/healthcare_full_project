@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable, of } from 'rxjs';
+import { BehaviorSubject, Observable, map, of } from 'rxjs';
 import {
   Appointment,
   DoctorProfile,
@@ -24,6 +24,7 @@ import {
 })
 export class HealthcareDataService {
   private readonly usersSubject = new BehaviorSubject<User[]>([...usersSeed]);
+  private readonly appointmentsSubject = new BehaviorSubject<Appointment[]>([...appointmentsSeed]);
 
   getUsers(): Observable<User[]> {
     return this.usersSubject.asObservable();
@@ -70,15 +71,62 @@ export class HealthcareDataService {
   }
 
   getAppointments(): Observable<Appointment[]> {
-    return of(appointmentsSeed);
+    return this.appointmentsSubject.asObservable();
   }
 
   getAppointmentsForPatient(patientId: string): Observable<Appointment[]> {
-    return of(appointmentsSeed.filter((appointment) => appointment.patientId === patientId));
+    return this.appointmentsSubject
+      .asObservable()
+      .pipe(map((appointments) => appointments.filter((appointment) => appointment.patientId === patientId)));
   }
 
   getAppointmentsForDoctor(doctorId: string): Observable<Appointment[]> {
-    return of(appointmentsSeed.filter((appointment) => appointment.doctorId === doctorId));
+    return this.appointmentsSubject
+      .asObservable()
+      .pipe(map((appointments) => appointments.filter((appointment) => appointment.doctorId === doctorId)));
+  }
+
+  createAppointment(payload: {
+    patientId: string;
+    doctorId: string;
+    startsAt: string;
+    mode: 'in-clinic' | 'virtual';
+    reason: string;
+  }): Appointment {
+    const appointment: Appointment = {
+      id: `ap-${Date.now()}`,
+      patientId: payload.patientId,
+      doctorId: payload.doctorId,
+      startsAt: payload.startsAt,
+      status: 'requested',
+      mode: payload.mode,
+      reason: payload.reason.trim()
+    };
+
+    this.appointmentsSubject.next([appointment, ...this.appointmentsSubject.value]);
+    return appointment;
+  }
+
+  updateAppointmentStatus(appointmentId: string, status: Appointment['status']): void {
+    this.appointmentsSubject.next(
+      this.appointmentsSubject.value.map((appointment) =>
+        appointment.id === appointmentId ? { ...appointment, status } : appointment
+      )
+    );
+  }
+
+  rescheduleAppointment(appointmentId: string, startsAt: string): void {
+    this.appointmentsSubject.next(
+      this.appointmentsSubject.value.map((appointment) =>
+        appointment.id === appointmentId
+          ? {
+              ...appointment,
+              startsAt,
+              status: 'rescheduled'
+            }
+          : appointment
+      )
+    );
   }
 
   getPrescriptionsForPatient(patientId: string): Observable<Prescription[]> {

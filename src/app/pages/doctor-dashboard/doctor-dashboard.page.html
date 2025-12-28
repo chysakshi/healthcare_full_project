@@ -28,4 +28,38 @@
       <li *ngFor="let entry of consultationQueue">{{ entry }}</li>
     </ul>
   </section>
+
+  <section class="panel management-panel">
+    <h2>Appointment Management</h2>
+    <p class="helper">Approve, reschedule, complete, or cancel patient requests from a single view.</p>
+    <p class="action-message" *ngIf="actionMessage">{{ actionMessage }}</p>
+
+    <div class="request-grid" *ngIf="appointmentRequests.length; else noRequests">
+      <article class="request-card" *ngFor="let request of appointmentRequests">
+        <h3>{{ request.patientName }}</h3>
+        <p>{{ request.startsAt }} | {{ request.mode }}</p>
+        <p>{{ request.reason }}</p>
+        <span class="status" [class]="'status ' + request.status">{{ request.status | titlecase }}</span>
+
+        <div class="actions">
+          <button type="button" (click)="approveAppointment(request.id)" [disabled]="!canApprove(request.status)">
+            Approve
+          </button>
+          <button type="button" (click)="rescheduleAppointment(request.id, request.startsAtIso)" [disabled]="!canReschedule(request.status)">
+            Reschedule +1 day
+          </button>
+          <button type="button" (click)="completeAppointment(request.id)" [disabled]="!canComplete(request.status)">
+            Complete
+          </button>
+          <button type="button" class="danger" (click)="cancelAppointment(request.id)" [disabled]="request.status === 'cancelled' || request.status === 'completed'">
+            Cancel
+          </button>
+        </div>
+      </article>
+    </div>
+
+    <ng-template #noRequests>
+      <p class="helper">No appointments found for the current doctor.</p>
+    </ng-template>
+  </section>
 </section>

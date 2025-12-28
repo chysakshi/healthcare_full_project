@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { HealthcareDataService } from '../../core/services/healthcare-data.service';
 import { Appointment, Invoice, MedicalReport, Prescription, User } from '../../core/models/healthcare.models';
@@ -8,7 +9,7 @@ import { AuthService } from '../../core/services/auth.service';
 @Component({
   selector: 'app-patient-dashboard-page',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, ReactiveFormsModule],
   templateUrl: './patient-dashboard.page.html',
   styleUrl: './patient-dashboard.page.scss'
 })
@@ -21,15 +22,36 @@ export class PatientDashboardPageComponent implements OnInit {
   protected outstandingAmount = 0;
   protected nextAppointmentLabel = 'No upcoming appointments';
   protected readonly appointmentList: Array<{ dateTime: string; mode: string; doctor: string; reason: string }> = [];
+  protected readonly appointmentTimeline: Array<{
+    id: string;
+    dateTime: string;
+    doctor: string;
+    mode: string;
+    reason: string;
+    status: string;
+  }> = [];
   protected readonly prescriptionList: Prescription[] = [];
   protected readonly reportList: MedicalReport[] = [];
   protected readonly invoiceList: Invoice[] = [];
   protected readonly recentActivity: string[] = [];
+  protected readonly doctorOptions: Array<{ id: string; name: string; specialization: string; fee: number }> = [];
+  protected bookingMessage = '';
+  protected bookingError = '';
+  protected isBooking = false;
+
+  protected readonly bookingForm = this.formBuilder.nonNullable.group({
+    doctorId: ['', [Validators.required]],
+    startsAt: ['', [Validators.required]],
+    mode: ['in-clinic' as 'in-clinic' | 'virtual', [Validators.required]],
+    reason: ['', [Validators.required, Validators.minLength(6)]]
+  });
+
   private readonly usersMap = new Map<string, User>();
 
   constructor(
     private readonly healthcareDataService: HealthcareDataService,
-    private readonly authService: AuthService
+    private readonly authService: AuthService,
+    private readonly formBuilder: FormBuilder
   ) {}
 
   ngOnInit(): void {
@@ -44,6 +66,19 @@ export class PatientDashboardPageComponent implements OnInit {
         this.usersMap.set(user.id, user);
       }
       this.refreshAppointments();
+    });
+
+    this.healthcareDataService.getDoctorDirectory().subscribe((directory) => {
+      this.doctorOptions.splice(
+        0,
+        this.doctorOptions.length,
+        ...directory.map((entry) => ({
+          id: entry.user.id,
+          name: entry.user.fullName,
+          specialization: entry.profile.specialization,
+          fee: entry.profile.consultationFee
+        }))
+      );
     });
 
     this.refreshAppointments();
@@ -63,7 +98,7 @@ export class PatientDashboardPageComponent implements OnInit {
   private refreshAppointments(): void {
     this.healthcareDataService.getAppointmentsForPatient(this.patientId).subscribe((appointments) => {
       const upcoming = appointments
-        .filter((appointment) => appointment.status === 'scheduled')
+        .filter((appointment) => ['requested', 'scheduled', 'rescheduled'].includes(appointment.status))
         .sort((left, right) => new Date(left.startsAt).getTime() - new Date(right.startsAt).getTime());
 
       this.upcomingAppointments = upcoming.length;
@@ -74,6 +109,22 @@ export class PatientDashboardPageComponent implements OnInit {
         doctor: this.resolveDoctorName(appointment),
         reason: appointment.reason
       })));
+
+      this.appointmentTimeline.splice(
+        0,
+        this.appointmentTimeline.length,
+        ...appointments
+          .slice()
+          .sort((left, right) => new Date(right.startsAt).getTime() - new Date(left.startsAt).getTime())
+          .map((appointment) => ({
+            id: appointment.id,
+            dateTime: new Date(appointment.startsAt).toLocaleString(),
+            doctor: this.resolveDoctorName(appointment),
+            mode: appointment.mode,
+            reason: appointment.reason,
+            status: appointment.status
+          }))
+      );
     });
   }
 
@@ -124,5 +175,39 @@ export class PatientDashboardPageComponent implements OnInit {
   private resolveDoctorName(appointment: Appointment): string {
     const doctor = this.usersMap.get(appointment.doctorId);
     return doctor?.fullName ?? 'Assigned doctor';
+  }
+
+  protected submitBooking(): void {
+    if (this.bookingForm.invalid || this.isBooking) {
+      this.bookingForm.markAllAsTouched();
+      return;
+    }
+
+    const { doctorId, startsAt, mode, reason } = this.bookingForm.getRawValue();
+    this.isBooking = true;
+    this.bookingError = '';
+    this.bookingMessage = '';
+
+    try {
+      this.healthcareDataService.createAppointment({
+        patientId: this.patientId,
+        doctorId,
+        startsAt: new Date(startsAt).toISOString(),
+        mode,
+        reason
+      });
+
+      this.bookingMessage = 'Appointment request submitted successfully.';
+      this.bookingForm.patchValue({
+        startsAt: '',
+        reason: '',
+        mode: 'in-clinic'
+      });
+      this.bookingForm.markAsPristine();
+    } catch {
+      this.bookingError = 'Could not submit appointment request. Please try again.';
+    } finally {
+      this.isBooking = false;
+    }
   }
 }

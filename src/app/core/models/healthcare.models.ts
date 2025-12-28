@@ -20,7 +20,7 @@ export interface DoctorProfile {
   rating: number;
 }
 
-export type AppointmentStatus = 'scheduled' | 'checked-in' | 'completed' | 'cancelled';
+export type AppointmentStatus = 'requested' | 'scheduled' | 'rescheduled' | 'checked-in' | 'completed' | 'cancelled';
 
 export interface Appointment {
   id: string;
