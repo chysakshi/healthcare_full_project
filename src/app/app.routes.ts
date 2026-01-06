@@ -7,6 +7,7 @@ import { DoctorProfilePageComponent } from './pages/doctor-profile/doctor-profil
 import { LoginPageComponent } from './pages/login/login.page';
 import { NotFoundPageComponent } from './pages/not-found/not-found.page';
 import { PatientDashboardPageComponent } from './pages/patient-dashboard/patient-dashboard.page';
+import { PatientProfilePageComponent } from './pages/patient-profile/patient-profile.page';
 import { SignupPageComponent } from './pages/signup/signup.page';
 
 export const routes: Routes = [
@@ -14,6 +15,7 @@ export const routes: Routes = [
 	{ path: 'login', component: LoginPageComponent, canActivate: [guestOnlyGuard] },
 	{ path: 'signup', component: SignupPageComponent, canActivate: [guestOnlyGuard] },
 	{ path: 'patient/dashboard', component: PatientDashboardPageComponent, canActivate: [roleGuard('patient')] },
+	{ path: 'patient/profile', component: PatientProfilePageComponent, canActivate: [roleGuard('patient')] },
 	{ path: 'patient/doctors', component: DoctorDirectoryPageComponent, canActivate: [roleGuard('patient')] },
 	{ path: 'patient/doctors/:doctorId', component: DoctorProfilePageComponent, canActivate: [roleGuard('patient')] },
 	{ path: 'doctor/dashboard', component: DoctorDashboardPageComponent, canActivate: [roleGuard('doctor')] },

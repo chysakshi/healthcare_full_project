@@ -15,7 +15,10 @@ export const usersSeed: User[] = [
     email: 'kavya.sharma@healthcare.com',
     password: 'Patient@123',
     role: 'patient',
-    isActive: true
+    isActive: true,
+    phone: '+91 9876543210',
+    bloodGroup: 'B+',
+    emergencyContact: '+91 9000011111'
   },
   {
     id: 'p-002',
@@ -23,7 +26,10 @@ export const usersSeed: User[] = [
     email: 'ravi.nair@healthcare.com',
     password: 'Patient@123',
     role: 'patient',
-    isActive: true
+    isActive: true,
+    phone: '+91 9898989898',
+    bloodGroup: 'O+',
+    emergencyContact: '+91 9123456789'
   },
   {
     id: 'd-001',

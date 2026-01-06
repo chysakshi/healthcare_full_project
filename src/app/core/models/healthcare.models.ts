@@ -7,6 +7,9 @@ export interface User {
   password: string;
   role: UserRole;
   isActive: boolean;
+  phone?: string;
+  bloodGroup?: string;
+  emergencyContact?: string;
 }
 
 export interface DoctorProfile {

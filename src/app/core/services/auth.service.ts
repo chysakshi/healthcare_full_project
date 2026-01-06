@@ -82,6 +82,11 @@ export class AuthService {
     this.currentUserSubject.next(null);
   }
 
+  setCurrentUser(user: User): void {
+    this.writeSession(user);
+    this.currentUserSubject.next(user);
+  }
+
   private readSession(): User | null {
     const raw = localStorage.getItem(SESSION_STORAGE_KEY);
     if (!raw) {

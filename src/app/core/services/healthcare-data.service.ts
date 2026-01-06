@@ -34,6 +34,10 @@ export class HealthcareDataService {
     return this.usersSubject.value;
   }
 
+  getUserById(userId: string): User | undefined {
+    return this.usersSubject.value.find((user) => user.id === userId);
+  }
+
   findUserByEmail(email: string): User | undefined {
     const normalizedEmail = email.trim().toLowerCase();
     return this.usersSubject.value.find((user) => user.email.toLowerCase() === normalizedEmail);
@@ -41,6 +45,23 @@ export class HealthcareDataService {
 
   addUser(user: User): void {
     this.usersSubject.next([...this.usersSubject.value, user]);
+  }
+
+  updateUser(userId: string, changes: Partial<User>): User | null {
+    let updatedUser: User | null = null;
+
+    this.usersSubject.next(
+      this.usersSubject.value.map((user) => {
+        if (user.id !== userId) {
+          return user;
+        }
+
+        updatedUser = { ...user, ...changes };
+        return updatedUser;
+      })
+    );
+
+    return updatedUser;
   }
 
   getDoctorProfiles(): Observable<DoctorProfile[]> {

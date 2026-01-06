@@ -1,0 +1,118 @@
+<section class="profile-page">
+  <header>
+    <h1>Patient Profile</h1>
+    <p>Manage personal details and review your latest medical summary in one place.</p>
+  </header>
+
+  <section class="summary-grid" aria-label="Medical summary cards">
+    <article class="summary-card">
+      <h2>Total Appointments</h2>
+      <strong>{{ totalAppointments }}</strong>
+      <p>Completed: {{ completedAppointments }}</p>
+    </article>
+    <article class="summary-card">
+      <h2>Prescriptions</h2>
+      <strong>{{ activePrescriptions }}</strong>
+      <p>Active medication records</p>
+    </article>
+    <article class="summary-card">
+      <h2>Reports</h2>
+      <strong>{{ readyReports }}</strong>
+      <p>Ready: {{ readyReports }} | Pending: {{ pendingReports }}</p>
+    </article>
+    <article class="summary-card">
+      <h2>Billing</h2>
+      <strong>INR {{ outstandingAmount }}</strong>
+      <p>Pending invoices: {{ pendingInvoices }}</p>
+    </article>
+  </section>
+
+  <section class="content-grid">
+    <article class="panel profile-editor" *ngIf="currentUser as user">
+      <h2>Personal Details</h2>
+      <p class="email">Account Email: {{ user.email }}</p>
+
+      <form [formGroup]="profileForm" (ngSubmit)="saveProfile()">
+        <label for="fullName">Full Name</label>
+        <input id="fullName" type="text" formControlName="fullName" />
+
+        <label for="phone">Phone</label>
+        <input id="phone" type="text" formControlName="phone" />
+
+        <label for="bloodGroup">Blood Group</label>
+        <select id="bloodGroup" formControlName="bloodGroup">
+          <option value="">Select blood group</option>
+          <option value="A+">A+</option>
+          <option value="A-">A-</option>
+          <option value="B+">B+</option>
+          <option value="B-">B-</option>
+          <option value="AB+">AB+</option>
+          <option value="AB-">AB-</option>
+          <option value="O+">O+</option>
+          <option value="O-">O-</option>
+        </select>
+
+        <label for="emergencyContact">Emergency Contact</label>
+        <input id="emergencyContact" type="text" formControlName="emergencyContact" />
+
+        <small class="error" *ngIf="profileForm.touched && profileForm.invalid">
+          Please complete all profile fields correctly.
+        </small>
+        <p class="success" *ngIf="saveMessage">{{ saveMessage }}</p>
+        <p class="error" *ngIf="saveError">{{ saveError }}</p>
+
+        <button type="submit">Save Profile</button>
+      </form>
+    </article>
+
+    <article class="panel">
+      <h2>Recent Appointments</h2>
+      <ul class="list" *ngIf="recentAppointments.length; else noAppointments">
+        <li *ngFor="let item of recentAppointments">
+          <strong>{{ item.reason }}</strong>
+          <span>{{ item.startsAt | date:'medium' }} | {{ item.status | titlecase }}</span>
+        </li>
+      </ul>
+      <ng-template #noAppointments>
+        <p class="empty">No recent appointments.</p>
+      </ng-template>
+
+      <h2>Recent Prescriptions</h2>
+      <ul class="list" *ngIf="recentPrescriptions.length; else noPrescriptions">
+        <li *ngFor="let item of recentPrescriptions">
+          <strong>{{ item.medication }}</strong>
+          <span>{{ item.dosage }} | {{ item.issuedAt | date:'mediumDate' }}</span>
+        </li>
+      </ul>
+      <ng-template #noPrescriptions>
+        <p class="empty">No recent prescriptions.</p>
+      </ng-template>
+    </article>
+
+    <article class="panel">
+      <h2>Recent Reports</h2>
+      <ul class="list" *ngIf="recentReports.length; else noReports">
+        <li *ngFor="let item of recentReports">
+          <strong>{{ item.reportType }}</strong>
+          <span>{{ item.createdAt | date:'mediumDate' }} | {{ item.status | titlecase }}</span>
+        </li>
+      </ul>
+      <ng-template #noReports>
+        <p class="empty">No reports available.</p>
+      </ng-template>
+
+      <h2>Recent Invoices</h2>
+      <ul class="list" *ngIf="recentInvoices.length; else noInvoices">
+        <li *ngFor="let item of recentInvoices">
+          <strong>{{ item.id }} - INR {{ item.amount }}</strong>
+          <span>{{ item.issuedAt | date:'mediumDate' }} | {{ item.status | titlecase }}</span>
+        </li>
+      </ul>
+      <ng-template #noInvoices>
+        <p class="empty">No invoices available.</p>
+      </ng-template>
+    </article>
+  </section>
+
+  <a class="back-link" routerLink="/patient/dashboard">Back to Patient Dashboard</a>
+</section>
