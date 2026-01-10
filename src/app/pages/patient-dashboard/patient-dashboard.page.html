@@ -43,6 +43,7 @@
           {{ doctor.name }} - {{ doctor.specialization }} - INR {{ doctor.fee }}
         </option>
       </select>
+      <p class="availability-hint">{{ availabilityHint }}</p>
 
       <label for="startsAt">Date and Time</label>
       <input id="startsAt" type="datetime-local" formControlName="startsAt" />

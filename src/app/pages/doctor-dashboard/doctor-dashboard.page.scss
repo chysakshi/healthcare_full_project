@@ -159,13 +159,89 @@ header p {
   cursor: not-allowed;
 }
 
+.schedule-panel {
+  border-color: #bbf7d0;
+  background: linear-gradient(160deg, #f0fdf4 0%, #ecfeff 100%);
+}
+
+.day-grid {
+  margin-top: 12px;
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.day-toggle {
+  border: 1px solid #86efac;
+  border-radius: 10px;
+  background: #ffffff;
+  padding: 8px 10px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 700;
+  color: #166534;
+}
+
+.schedule-row {
+  margin-top: 12px;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.schedule-row label {
+  display: grid;
+  gap: 6px;
+  color: #334155;
+  font-weight: 700;
+}
+
+.schedule-row input {
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  padding: 9px 10px;
+  font: inherit;
+}
+
+.availability-toggle {
+  margin-top: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+  color: #14532d;
+}
+
+.schedule-panel button {
+  margin-top: 12px;
+  border: 0;
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-weight: 700;
+  color: #ffffff;
+  background: linear-gradient(135deg, #16a34a, #0f766e);
+  cursor: pointer;
+}
+
+.schedule-message {
+  margin: 10px 0 0;
+  color: #166534;
+  font-weight: 700;
+}
+
 @media (max-width: 900px) {
   .kpi-grid {
     grid-template-columns: 1fr;
   }
 
   .request-grid,
-  .actions {
+  .actions,
+  .schedule-row {
     grid-template-columns: 1fr;
+  }
+
+  .day-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }

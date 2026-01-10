@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { HealthcareDataService } from '../../core/services/healthcare-data.service';
-import { Appointment, Invoice, MedicalReport, Prescription, User } from '../../core/models/healthcare.models';
+import { Appointment, DoctorProfile, Invoice, MedicalReport, Prescription, User } from '../../core/models/healthcare.models';
 import { AuthService } from '../../core/services/auth.service';
 
 @Component({
@@ -35,6 +35,7 @@ export class PatientDashboardPageComponent implements OnInit {
   protected readonly invoiceList: Invoice[] = [];
   protected readonly recentActivity: string[] = [];
   protected readonly doctorOptions: Array<{ id: string; name: string; specialization: string; fee: number }> = [];
+  protected availabilityHint = 'Select a date/time to view doctors available for that slot.';
   protected bookingMessage = '';
   protected bookingError = '';
   protected isBooking = false;
@@ -47,6 +48,7 @@ export class PatientDashboardPageComponent implements OnInit {
   });
 
   private readonly usersMap = new Map<string, User>();
+  private readonly doctorDirectoryStore: Array<{ user: User; profile: DoctorProfile }> = [];
 
   constructor(
     private readonly healthcareDataService: HealthcareDataService,
@@ -69,16 +71,12 @@ export class PatientDashboardPageComponent implements OnInit {
     });
 
     this.healthcareDataService.getDoctorDirectory().subscribe((directory) => {
-      this.doctorOptions.splice(
-        0,
-        this.doctorOptions.length,
-        ...directory.map((entry) => ({
-          id: entry.user.id,
-          name: entry.user.fullName,
-          specialization: entry.profile.specialization,
-          fee: entry.profile.consultationFee
-        }))
-      );
+      this.doctorDirectoryStore.splice(0, this.doctorDirectoryStore.length, ...directory);
+      this.refreshDoctorOptions();
+    });
+
+    this.bookingForm.controls.startsAt.valueChanges.subscribe(() => {
+      this.refreshDoctorOptions();
     });
 
     this.refreshAppointments();
@@ -199,15 +197,62 @@ export class PatientDashboardPageComponent implements OnInit {
 
       this.bookingMessage = 'Appointment request submitted successfully.';
       this.bookingForm.patchValue({
+        doctorId: '',
         startsAt: '',
         reason: '',
         mode: 'in-clinic'
       });
+      this.refreshDoctorOptions();
       this.bookingForm.markAsPristine();
     } catch {
       this.bookingError = 'Could not submit appointment request. Please try again.';
     } finally {
       this.isBooking = false;
     }
+  }
+
+  private refreshDoctorOptions(): void {
+    const startsAt = this.bookingForm.controls.startsAt.value;
+    const selectedDate = startsAt ? new Date(startsAt) : null;
+
+    const filtered = this.doctorDirectoryStore.filter(({ profile }) => this.isDoctorAvailable(profile, selectedDate));
+
+    this.doctorOptions.splice(
+      0,
+      this.doctorOptions.length,
+      ...filtered.map((entry) => ({
+        id: entry.user.id,
+        name: entry.user.fullName,
+        specialization: entry.profile.specialization,
+        fee: entry.profile.consultationFee
+      }))
+    );
+
+    if (!selectedDate) {
+      this.availabilityHint = 'Select a date/time to view doctors available for that slot.';
+    } else if (!this.doctorOptions.length) {
+      this.availabilityHint = 'No doctor is available for the selected slot. Please choose another time.';
+      this.bookingForm.patchValue({ doctorId: '' });
+    } else {
+      this.availabilityHint = `${this.doctorOptions.length} doctor(s) are available for the selected slot.`;
+    }
+  }
+
+  private isDoctorAvailable(profile: DoctorProfile, selectedDate: Date | null): boolean {
+    if (!profile.acceptingAppointments) {
+      return false;
+    }
+
+    if (!selectedDate) {
+      return true;
+    }
+
+    const dayToken = selectedDate.toLocaleDateString('en-US', { weekday: 'short' });
+    if (!profile.availableDays.includes(dayToken)) {
+      return false;
+    }
+
+    const timeToken = `${`${selectedDate.getHours()}`.padStart(2, '0')}:${`${selectedDate.getMinutes()}`.padStart(2, '0')}`;
+    return timeToken >= profile.shiftStart && timeToken <= profile.shiftEnd;
   }
 }

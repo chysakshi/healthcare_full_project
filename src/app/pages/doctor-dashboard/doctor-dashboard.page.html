@@ -62,4 +62,39 @@
       <p class="helper">No appointments found for the current doctor.</p>
     </ng-template>
   </section>
+
+  <section class="panel schedule-panel">
+    <h2>Schedule and Availability</h2>
+    <p class="helper">Configure your active days, consultation hours, and appointment intake.</p>
+
+    <div class="day-grid">
+      <label *ngFor="let day of dayOptions" class="day-toggle">
+        <input type="checkbox" [checked]="isDaySelected(day)" (change)="toggleAvailableDay(day, $any($event.target).checked)" />
+        <span>{{ day }}</span>
+      </label>
+    </div>
+
+    <div class="schedule-row">
+      <label>
+        Shift Start
+        <input type="time" [(ngModel)]="shiftStart" />
+      </label>
+      <label>
+        Shift End
+        <input type="time" [(ngModel)]="shiftEnd" />
+      </label>
+      <label>
+        Consultation Fee (INR)
+        <input type="number" min="0" [(ngModel)]="consultationFee" />
+      </label>
+    </div>
+
+    <label class="availability-toggle">
+      <input type="checkbox" [(ngModel)]="acceptingAppointments" />
+      <span>Accepting new appointment requests</span>
+    </label>
+
+    <button type="button" (click)="saveAvailability()">Save Availability</button>
+    <p class="schedule-message" *ngIf="scheduleMessage">{{ scheduleMessage }}</p>
+  </section>
 </section>

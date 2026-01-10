@@ -66,6 +66,9 @@ export const doctorProfilesSeed: DoctorProfile[] = [
     consultationFee: 1200,
     languages: ['English', 'Hindi'],
     availableDays: ['Mon', 'Wed', 'Fri'],
+    shiftStart: '09:00',
+    shiftEnd: '16:00',
+    acceptingAppointments: true,
     rating: 4.8
   },
   {
@@ -76,6 +79,9 @@ export const doctorProfilesSeed: DoctorProfile[] = [
     consultationFee: 900,
     languages: ['English', 'Hindi', 'Marathi'],
     availableDays: ['Tue', 'Thu', 'Sat'],
+    shiftStart: '10:00',
+    shiftEnd: '18:00',
+    acceptingAppointments: true,
     rating: 4.6
   }
 ];

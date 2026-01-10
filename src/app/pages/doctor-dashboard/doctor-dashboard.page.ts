@@ -1,17 +1,19 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { HealthcareDataService } from '../../core/services/healthcare-data.service';
-import { Appointment, User } from '../../core/models/healthcare.models';
+import { Appointment, DoctorProfile, User } from '../../core/models/healthcare.models';
 import { AuthService } from '../../core/services/auth.service';
 
 @Component({
   selector: 'app-doctor-dashboard-page',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './doctor-dashboard.page.html',
   styleUrl: './doctor-dashboard.page.scss'
 })
 export class DoctorDashboardPageComponent implements OnInit {
+  protected readonly dayOptions = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
   protected doctorId = 'd-001';
   protected todaysAppointments = 0;
   protected pendingReviews = 0;
@@ -29,7 +31,15 @@ export class DoctorDashboardPageComponent implements OnInit {
     status: string;
   }> = [];
   protected actionMessage = '';
+  protected scheduleMessage = '';
+  protected shiftStart = '09:00';
+  protected shiftEnd = '17:00';
+  protected consultationFee = 0;
+  protected acceptingAppointments = true;
+  protected readonly selectedDays = new Set<string>();
+
   private readonly usersMap = new Map<string, User>();
+  private doctorProfile: DoctorProfile | null = null;
 
   constructor(
     private readonly healthcareDataService: HealthcareDataService,
@@ -48,6 +58,20 @@ export class DoctorDashboardPageComponent implements OnInit {
         this.usersMap.set(user.id, user);
       }
       this.refreshAppointments();
+    });
+
+    this.healthcareDataService.getDoctorProfileByUserId(this.doctorId).subscribe((entry) => {
+      this.doctorProfile = entry?.profile ?? null;
+      if (!this.doctorProfile) {
+        return;
+      }
+
+      this.shiftStart = this.doctorProfile.shiftStart;
+      this.shiftEnd = this.doctorProfile.shiftEnd;
+      this.consultationFee = this.doctorProfile.consultationFee;
+      this.acceptingAppointments = this.doctorProfile.acceptingAppointments;
+      this.selectedDays.clear();
+      this.doctorProfile.availableDays.forEach((day) => this.selectedDays.add(day));
     });
 
     this.refreshAppointments();
@@ -81,6 +105,46 @@ export class DoctorDashboardPageComponent implements OnInit {
     nextSlot.setDate(nextSlot.getDate() + 1);
     this.healthcareDataService.rescheduleAppointment(appointmentId, nextSlot.toISOString());
     this.actionMessage = 'Appointment rescheduled for the next available day.';
+  }
+
+  protected toggleAvailableDay(day: string, isChecked: boolean): void {
+    if (isChecked) {
+      this.selectedDays.add(day);
+    } else {
+      this.selectedDays.delete(day);
+    }
+  }
+
+  protected isDaySelected(day: string): boolean {
+    return this.selectedDays.has(day);
+  }
+
+  protected saveAvailability(): void {
+    if (this.shiftStart >= this.shiftEnd) {
+      this.scheduleMessage = 'Shift end time must be later than shift start time.';
+      return;
+    }
+
+    if (!this.selectedDays.size) {
+      this.scheduleMessage = 'Select at least one available day.';
+      return;
+    }
+
+    const updated = this.healthcareDataService.updateDoctorProfile(this.doctorId, {
+      availableDays: [...this.selectedDays],
+      shiftStart: this.shiftStart,
+      shiftEnd: this.shiftEnd,
+      acceptingAppointments: this.acceptingAppointments,
+      consultationFee: this.consultationFee
+    });
+
+    if (!updated) {
+      this.scheduleMessage = 'Could not update availability settings.';
+      return;
+    }
+
+    this.doctorProfile = updated;
+    this.scheduleMessage = 'Schedule and availability updated.';
   }
 
   private refreshAppointments(): void {

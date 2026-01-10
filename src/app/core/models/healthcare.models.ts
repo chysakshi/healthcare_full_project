@@ -20,6 +20,9 @@ export interface DoctorProfile {
   consultationFee: number;
   languages: string[];
   availableDays: string[];
+  shiftStart: string;
+  shiftEnd: string;
+  acceptingAppointments: boolean;
   rating: number;
 }
 

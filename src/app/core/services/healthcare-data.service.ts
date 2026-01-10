@@ -25,6 +25,7 @@ import {
 export class HealthcareDataService {
   private readonly usersSubject = new BehaviorSubject<User[]>([...usersSeed]);
   private readonly appointmentsSubject = new BehaviorSubject<Appointment[]>([...appointmentsSeed]);
+  private readonly doctorProfilesSubject = new BehaviorSubject<DoctorProfile[]>([...doctorProfilesSeed]);
 
   getUsers(): Observable<User[]> {
     return this.usersSubject.asObservable();
@@ -65,14 +66,36 @@ export class HealthcareDataService {
   }
 
   getDoctorProfiles(): Observable<DoctorProfile[]> {
-    return of(doctorProfilesSeed);
+    return this.doctorProfilesSubject.asObservable();
+  }
+
+  getDoctorProfileSnapshotByUserId(userId: string): DoctorProfile | undefined {
+    return this.doctorProfilesSubject.value.find((profile) => profile.userId === userId);
+  }
+
+  updateDoctorProfile(userId: string, changes: Partial<DoctorProfile>): DoctorProfile | null {
+    let updatedProfile: DoctorProfile | null = null;
+
+    this.doctorProfilesSubject.next(
+      this.doctorProfilesSubject.value.map((profile) => {
+        if (profile.userId !== userId) {
+          return profile;
+        }
+
+        updatedProfile = { ...profile, ...changes };
+        return updatedProfile;
+      })
+    );
+
+    return updatedProfile;
   }
 
   getDoctorDirectory(): Observable<Array<{ user: User; profile: DoctorProfile }>> {
     const doctors = this.usersSubject.value.filter((user) => user.role === 'doctor' && user.isActive);
+    const profiles = this.doctorProfilesSubject.value;
     const directory = doctors
       .map((doctor) => {
-        const profile = doctorProfilesSeed.find((entry) => entry.userId === doctor.id);
+        const profile = profiles.find((entry) => entry.userId === doctor.id);
         return profile ? { user: doctor, profile } : undefined;
       })
       .filter((entry): entry is { user: User; profile: DoctorProfile } => !!entry);
@@ -82,7 +105,7 @@ export class HealthcareDataService {
 
   getDoctorProfileByUserId(userId: string): Observable<{ user: User; profile: DoctorProfile } | null> {
     const user = this.usersSubject.value.find((entry) => entry.id === userId && entry.role === 'doctor');
-    const profile = doctorProfilesSeed.find((entry) => entry.userId === userId);
+    const profile = this.doctorProfilesSubject.value.find((entry) => entry.userId === userId);
 
     if (!user || !profile) {
       return of(null);
@@ -114,11 +137,18 @@ export class HealthcareDataService {
     mode: 'in-clinic' | 'virtual';
     reason: string;
   }): Appointment {
+    const profile = this.getDoctorProfileSnapshotByUserId(payload.doctorId);
+    const startsAtDate = new Date(payload.startsAt);
+
+    if (!profile || !this.isDoctorAvailableForSlot(profile, startsAtDate)) {
+      throw new Error('Selected doctor is unavailable for the requested date/time.');
+    }
+
     const appointment: Appointment = {
       id: `ap-${Date.now()}`,
       patientId: payload.patientId,
       doctorId: payload.doctorId,
-      startsAt: payload.startsAt,
+      startsAt: startsAtDate.toISOString(),
       status: 'requested',
       mode: payload.mode,
       reason: payload.reason.trim()
@@ -176,5 +206,19 @@ export class HealthcareDataService {
 
   getInvoices(): Observable<Invoice[]> {
     return of(invoicesSeed);
+  }
+
+  private isDoctorAvailableForSlot(profile: DoctorProfile, startsAt: Date): boolean {
+    if (!profile.acceptingAppointments) {
+      return false;
+    }
+
+    const dayToken = startsAt.toLocaleDateString('en-US', { weekday: 'short' });
+    if (!profile.availableDays.includes(dayToken)) {
+      return false;
+    }
+
+    const requestedTime = `${`${startsAt.getHours()}`.padStart(2, '0')}:${`${startsAt.getMinutes()}`.padStart(2, '0')}`;
+    return requestedTime >= profile.shiftStart && requestedTime <= profile.shiftEnd;
   }
 }
