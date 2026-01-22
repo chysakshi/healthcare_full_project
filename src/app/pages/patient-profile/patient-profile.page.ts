@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-import { Appointment, Invoice, MedicalReport, Prescription, User } from '../../core/models/healthcare.models';
+import { Appointment, EncounterNote, Invoice, MedicalReport, Prescription, User } from '../../core/models/healthcare.models';
 import { AuthService } from '../../core/services/auth.service';
 import { HealthcareDataService } from '../../core/services/healthcare-data.service';
 
@@ -25,11 +25,13 @@ export class PatientProfilePageComponent implements OnInit {
   protected pendingReports = 0;
   protected pendingInvoices = 0;
   protected outstandingAmount = 0;
+  protected encounterNotesCount = 0;
 
   protected readonly recentPrescriptions: Prescription[] = [];
   protected readonly recentReports: MedicalReport[] = [];
   protected readonly recentInvoices: Invoice[] = [];
   protected readonly recentAppointments: Appointment[] = [];
+  protected readonly recentEncounterNotes: EncounterNote[] = [];
 
   protected readonly profileForm = this.formBuilder.nonNullable.group({
     fullName: ['', [Validators.required, Validators.minLength(3)]],
@@ -141,6 +143,18 @@ export class PatientProfilePageComponent implements OnInit {
         ...invoices
           .slice()
           .sort((left, right) => new Date(right.issuedAt).getTime() - new Date(left.issuedAt).getTime())
+          .slice(0, 4)
+      );
+    });
+
+    this.healthcareDataService.getEncounterNotesForPatient(patientId).subscribe((notes) => {
+      this.encounterNotesCount = notes.length;
+      this.recentEncounterNotes.splice(
+        0,
+        this.recentEncounterNotes.length,
+        ...notes
+          .slice()
+          .sort((left, right) => new Date(right.createdAt).getTime() - new Date(left.createdAt).getTime())
           .slice(0, 4)
       );
     });

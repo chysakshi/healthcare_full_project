@@ -230,6 +230,102 @@ header p {
   font-weight: 700;
 }
 
+.notes-panel {
+  border-color: #f5d0fe;
+  background: linear-gradient(160deg, #fdf4ff 0%, #faf5ff 100%);
+}
+
+.notes-grid {
+  margin-top: 14px;
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: 14px;
+}
+
+.note-form,
+.notes-list {
+  border: 1px solid #e9d5ff;
+  border-radius: 12px;
+  background: #ffffff;
+  padding: 14px;
+}
+
+.note-form {
+  display: grid;
+  gap: 10px;
+}
+
+.note-form label {
+  color: #334155;
+  font-weight: 700;
+}
+
+.note-form input,
+.note-form select,
+.note-form textarea {
+  border: 1px solid #d8b4fe;
+  border-radius: 10px;
+  padding: 10px 12px;
+  font: inherit;
+  background: #ffffff;
+}
+
+.note-form textarea {
+  resize: vertical;
+}
+
+.note-form button {
+  border: 0;
+  border-radius: 10px;
+  padding: 10px 14px;
+  color: #ffffff;
+  font-weight: 700;
+  background: linear-gradient(135deg, #a855f7, #7c3aed);
+  cursor: pointer;
+}
+
+.note-message {
+  margin: 0;
+  color: #166534;
+  font-weight: 700;
+}
+
+.note-error {
+  margin: 0;
+  color: #b91c1c;
+  font-weight: 700;
+}
+
+.notes-list h3 {
+  margin: 0;
+  color: #0f172a;
+}
+
+.notes-list ul {
+  margin: 12px 0 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 10px;
+}
+
+.notes-list li {
+  border: 1px solid #e9d5ff;
+  border-radius: 10px;
+  padding: 10px 12px;
+  display: grid;
+  gap: 4px;
+}
+
+.notes-list strong {
+  color: #0f172a;
+}
+
+.notes-list span {
+  color: #64748b;
+  font-size: 0.9rem;
+}
+
 @media (max-width: 900px) {
   .kpi-grid {
     grid-template-columns: 1fr;
@@ -237,7 +333,8 @@ header p {
 
   .request-grid,
   .actions,
-  .schedule-row {
+  .schedule-row,
+  .notes-grid {
     grid-template-columns: 1fr;
   }
 

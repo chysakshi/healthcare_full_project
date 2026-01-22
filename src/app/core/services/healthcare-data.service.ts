@@ -3,6 +3,7 @@ import { BehaviorSubject, Observable, map, of } from 'rxjs';
 import {
   Appointment,
   DoctorProfile,
+  EncounterNote,
   Invoice,
   MedicalReport,
   MessageThread,
@@ -12,6 +13,7 @@ import {
 import {
   appointmentsSeed,
   doctorProfilesSeed,
+  encounterNotesSeed,
   invoicesSeed,
   messageThreadsSeed,
   prescriptionsSeed,
@@ -26,6 +28,7 @@ export class HealthcareDataService {
   private readonly usersSubject = new BehaviorSubject<User[]>([...usersSeed]);
   private readonly appointmentsSubject = new BehaviorSubject<Appointment[]>([...appointmentsSeed]);
   private readonly doctorProfilesSubject = new BehaviorSubject<DoctorProfile[]>([...doctorProfilesSeed]);
+  private readonly encounterNotesSubject = new BehaviorSubject<EncounterNote[]>([...encounterNotesSeed]);
 
   getUsers(): Observable<User[]> {
     return this.usersSubject.asObservable();
@@ -190,6 +193,51 @@ export class HealthcareDataService {
 
   getInvoicesForPatient(patientId: string): Observable<Invoice[]> {
     return of(invoicesSeed.filter((invoice) => invoice.patientId === patientId));
+  }
+
+  getEncounterNotes(): Observable<EncounterNote[]> {
+    return this.encounterNotesSubject.asObservable();
+  }
+
+  getEncounterNotesForPatient(patientId: string): Observable<EncounterNote[]> {
+    return this.encounterNotesSubject
+      .asObservable()
+      .pipe(map((notes) => notes.filter((note) => note.patientId === patientId)));
+  }
+
+  getEncounterNotesForDoctor(doctorId: string): Observable<EncounterNote[]> {
+    return this.encounterNotesSubject
+      .asObservable()
+      .pipe(map((notes) => notes.filter((note) => note.doctorId === doctorId)));
+  }
+
+  addEncounterNote(payload: {
+    appointmentId: string;
+    doctorId: string;
+    title: string;
+    summary: string;
+    diagnosis: string;
+    followUpInstructions: string;
+  }): EncounterNote {
+    const appointment = this.appointmentsSubject.value.find((entry) => entry.id === payload.appointmentId);
+    if (!appointment || appointment.doctorId !== payload.doctorId) {
+      throw new Error('Encounter note cannot be created for this appointment.');
+    }
+
+    const note: EncounterNote = {
+      id: `en-${Date.now()}`,
+      appointmentId: appointment.id,
+      patientId: appointment.patientId,
+      doctorId: payload.doctorId,
+      createdAt: new Date().toISOString(),
+      title: payload.title.trim(),
+      summary: payload.summary.trim(),
+      diagnosis: payload.diagnosis.trim(),
+      followUpInstructions: payload.followUpInstructions.trim()
+    };
+
+    this.encounterNotesSubject.next([note, ...this.encounterNotesSubject.value]);
+    return note;
   }
 
   getMessageThreads(): Observable<MessageThread[]> {

@@ -97,4 +97,53 @@
     <button type="button" (click)="saveAvailability()">Save Availability</button>
     <p class="schedule-message" *ngIf="scheduleMessage">{{ scheduleMessage }}</p>
   </section>
+
+  <section class="panel notes-panel">
+    <h2>Consultation Notes</h2>
+    <p class="helper">Capture encounter summaries, diagnosis, and follow-up instructions for patient records.</p>
+
+    <div class="notes-grid">
+      <form class="note-form" (ngSubmit)="saveEncounterNote()">
+        <label for="appointmentId">Appointment</label>
+        <select id="appointmentId" name="appointmentId" [(ngModel)]="selectedAppointmentId">
+          <option value="">Select appointment</option>
+          <option *ngFor="let appointment of noteAppointments" [value]="appointment.id">
+            {{ appointment.label }}
+          </option>
+        </select>
+
+        <label for="noteTitle">Note Title</label>
+        <input id="noteTitle" name="noteTitle" type="text" [(ngModel)]="noteTitle" placeholder="Follow-up review" />
+
+        <label for="noteSummary">Clinical Summary</label>
+        <textarea id="noteSummary" name="noteSummary" rows="3" [(ngModel)]="noteSummary" placeholder="Document key observations and patient concerns"></textarea>
+
+        <label for="noteDiagnosis">Assessment / Diagnosis</label>
+        <textarea id="noteDiagnosis" name="noteDiagnosis" rows="3" [(ngModel)]="noteDiagnosis" placeholder="Primary diagnosis or clinical impression"></textarea>
+
+        <label for="noteFollowUpInstructions">Follow-Up Guidance</label>
+        <textarea id="noteFollowUpInstructions" name="noteFollowUpInstructions" rows="3" [(ngModel)]="noteFollowUpInstructions" placeholder="Tests, medication changes, or next visit instructions"></textarea>
+
+        <p class="note-message" *ngIf="noteMessage">{{ noteMessage }}</p>
+        <p class="note-error" *ngIf="noteError">{{ noteError }}</p>
+
+        <button type="submit">Save Encounter Note</button>
+      </form>
+
+      <div class="notes-list">
+        <h3>Recent Notes</h3>
+        <ul *ngIf="encounterNotes.length; else noEncounterNotes">
+          <li *ngFor="let note of encounterNotes">
+            <strong>{{ note.title }}</strong>
+            <span>{{ note.patientName }} | {{ note.createdAt }}</span>
+            <span>Diagnosis: {{ note.diagnosis }}</span>
+            <span>Follow-up: {{ note.followUpInstructions }}</span>
+          </li>
+        </ul>
+        <ng-template #noEncounterNotes>
+          <p class="helper">No consultation notes have been recorded yet.</p>
+        </ng-template>
+      </div>
+    </div>
+  </section>
 </section>

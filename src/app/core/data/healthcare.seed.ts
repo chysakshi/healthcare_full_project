@@ -1,6 +1,7 @@
 import {
   Appointment,
   DoctorProfile,
+  EncounterNote,
   Invoice,
   MedicalReport,
   MessageThread,
@@ -188,5 +189,19 @@ export const messageThreadsSeed: MessageThread[] = [
     lastMessage: 'Please continue medication and share your BP logs tomorrow.',
     unreadCount: 1,
     updatedAt: '2026-04-20T12:40:00.000Z'
+  }
+];
+
+export const encounterNotesSeed: EncounterNote[] = [
+  {
+    id: 'en-001',
+    appointmentId: 'ap-003',
+    patientId: 'p-002',
+    doctorId: 'd-001',
+    createdAt: '2026-04-20T09:45:00.000Z',
+    title: 'Cardiology Follow-Up Review',
+    summary: 'Patient reports improved exercise tolerance and stable home blood pressure readings.',
+    diagnosis: 'Hypertension remains controlled on current medication regimen.',
+    followUpInstructions: 'Continue current regimen and review in six weeks with updated lipid panel.'
   }
 ];

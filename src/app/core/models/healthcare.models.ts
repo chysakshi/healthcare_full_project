@@ -65,6 +65,18 @@ export interface Invoice {
   status: 'paid' | 'pending' | 'overdue';
 }
 
+export interface EncounterNote {
+  id: string;
+  appointmentId: string;
+  patientId: string;
+  doctorId: string;
+  createdAt: string;
+  title: string;
+  summary: string;
+  diagnosis: string;
+  followUpInstructions: string;
+}
+
 export interface MessageThread {
   id: string;
   patientId: string;

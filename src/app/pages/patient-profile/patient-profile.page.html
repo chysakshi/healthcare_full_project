@@ -25,6 +25,11 @@
       <strong>INR {{ outstandingAmount }}</strong>
       <p>Pending invoices: {{ pendingInvoices }}</p>
     </article>
+    <article class="summary-card">
+      <h2>Encounter Notes</h2>
+      <strong>{{ encounterNotesCount }}</strong>
+      <p>Clinical summaries recorded by your care team</p>
+    </article>
   </section>
 
   <section class="content-grid">
@@ -110,6 +115,21 @@
       </ul>
       <ng-template #noInvoices>
         <p class="empty">No invoices available.</p>
+      </ng-template>
+    </article>
+
+    <article class="panel">
+      <h2>Recent Consultation Notes</h2>
+      <ul class="list" *ngIf="recentEncounterNotes.length; else noEncounterNotes">
+        <li *ngFor="let item of recentEncounterNotes">
+          <strong>{{ item.title }}</strong>
+          <span>{{ item.createdAt | date:'medium' }}</span>
+          <span>Diagnosis: {{ item.diagnosis }}</span>
+          <span>Follow-up: {{ item.followUpInstructions }}</span>
+        </li>
+      </ul>
+      <ng-template #noEncounterNotes>
+        <p class="empty">No consultation notes available.</p>
       </ng-template>
     </article>
   </section>

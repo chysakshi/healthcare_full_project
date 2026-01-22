@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HealthcareDataService } from '../../core/services/healthcare-data.service';
-import { Appointment, DoctorProfile, User } from '../../core/models/healthcare.models';
+import { Appointment, DoctorProfile, EncounterNote, User } from '../../core/models/healthcare.models';
 import { AuthService } from '../../core/services/auth.service';
 
 @Component({
@@ -30,13 +30,28 @@ export class DoctorDashboardPageComponent implements OnInit {
     reason: string;
     status: string;
   }> = [];
+  protected readonly noteAppointments: Array<{ id: string; label: string }> = [];
+  protected readonly encounterNotes: Array<{
+    title: string;
+    patientName: string;
+    createdAt: string;
+    diagnosis: string;
+    followUpInstructions: string;
+  }> = [];
   protected actionMessage = '';
   protected scheduleMessage = '';
+  protected noteMessage = '';
+  protected noteError = '';
   protected shiftStart = '09:00';
   protected shiftEnd = '17:00';
   protected consultationFee = 0;
   protected acceptingAppointments = true;
   protected readonly selectedDays = new Set<string>();
+  protected selectedAppointmentId = '';
+  protected noteTitle = '';
+  protected noteSummary = '';
+  protected noteDiagnosis = '';
+  protected noteFollowUpInstructions = '';
 
   private readonly usersMap = new Map<string, User>();
   private doctorProfile: DoctorProfile | null = null;
@@ -82,6 +97,23 @@ export class DoctorDashboardPageComponent implements OnInit {
 
     this.healthcareDataService.getPrescriptions().subscribe((prescriptions) => {
       this.prescriptionRequests = prescriptions.filter((prescription) => prescription.doctorId === this.doctorId).length;
+    });
+
+    this.healthcareDataService.getEncounterNotesForDoctor(this.doctorId).subscribe((notes) => {
+      this.encounterNotes.splice(
+        0,
+        this.encounterNotes.length,
+        ...notes
+          .slice()
+          .sort((left, right) => new Date(right.createdAt).getTime() - new Date(left.createdAt).getTime())
+          .map((note) => ({
+            title: note.title,
+            patientName: this.resolvePatientName(note.patientId),
+            createdAt: new Date(note.createdAt).toLocaleString(),
+            diagnosis: note.diagnosis,
+            followUpInstructions: note.followUpInstructions
+          }))
+      );
     });
   }
 
@@ -147,6 +179,36 @@ export class DoctorDashboardPageComponent implements OnInit {
     this.scheduleMessage = 'Schedule and availability updated.';
   }
 
+  protected saveEncounterNote(): void {
+    if (!this.selectedAppointmentId || !this.noteTitle.trim() || !this.noteSummary.trim() || !this.noteDiagnosis.trim()) {
+      this.noteError = 'Complete the appointment selection, title, summary, and diagnosis before saving.';
+      this.noteMessage = '';
+      return;
+    }
+
+    try {
+      this.healthcareDataService.addEncounterNote({
+        appointmentId: this.selectedAppointmentId,
+        doctorId: this.doctorId,
+        title: this.noteTitle,
+        summary: this.noteSummary,
+        diagnosis: this.noteDiagnosis,
+        followUpInstructions: this.noteFollowUpInstructions
+      });
+
+      this.noteMessage = 'Encounter note saved successfully.';
+      this.noteError = '';
+      this.selectedAppointmentId = '';
+      this.noteTitle = '';
+      this.noteSummary = '';
+      this.noteDiagnosis = '';
+      this.noteFollowUpInstructions = '';
+    } catch {
+      this.noteError = 'Could not save encounter note for this appointment.';
+      this.noteMessage = '';
+    }
+  }
+
   private refreshAppointments(): void {
     this.healthcareDataService.getAppointmentsForDoctor(this.doctorId).subscribe((appointments) => {
       const today = new Date().toDateString();
@@ -175,6 +237,17 @@ export class DoctorDashboardPageComponent implements OnInit {
             mode: appointment.mode,
             reason: appointment.reason,
             status: appointment.status
+          }))
+      );
+
+      this.noteAppointments.splice(
+        0,
+        this.noteAppointments.length,
+        ...appointments
+          .filter((appointment) => appointment.status !== 'requested' && appointment.status !== 'cancelled')
+          .map((appointment) => ({
+            id: appointment.id,
+            label: `${this.resolvePatientName(appointment.patientId)} | ${new Date(appointment.startsAt).toLocaleString()} | ${appointment.reason}`
           }))
       );
     });
