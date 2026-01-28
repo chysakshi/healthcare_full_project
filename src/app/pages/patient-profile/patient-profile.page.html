@@ -87,6 +87,7 @@
         <li *ngFor="let item of recentPrescriptions">
           <strong>{{ item.medication }}</strong>
           <span>{{ item.dosage }} | {{ item.issuedAt | date:'mediumDate' }}</span>
+          <span *ngIf="item.instructions">Instructions: {{ item.instructions }}</span>
         </li>
       </ul>
       <ng-template #noPrescriptions>

@@ -92,6 +92,7 @@
           <strong>{{ prescription.medication }}</strong>
           <span>{{ prescription.dosage }}</span>
           <span>Duration: {{ prescription.durationDays }} days</span>
+          <span *ngIf="prescription.instructions">Instructions: {{ prescription.instructions }}</span>
         </li>
       </ul>
       <ng-template #noPrescriptions>

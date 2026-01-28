@@ -40,12 +40,14 @@ export interface Appointment {
 
 export interface Prescription {
   id: string;
+  appointmentId?: string;
   patientId: string;
   doctorId: string;
   issuedAt: string;
   medication: string;
   dosage: string;
   durationDays: number;
+  instructions?: string;
 }
 
 export interface MedicalReport {

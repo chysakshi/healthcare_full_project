@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HealthcareDataService } from '../../core/services/healthcare-data.service';
-import { Appointment, DoctorProfile, EncounterNote, User } from '../../core/models/healthcare.models';
+import { Appointment, DoctorProfile, EncounterNote, Prescription, User } from '../../core/models/healthcare.models';
 import { AuthService } from '../../core/services/auth.service';
 
 @Component({
@@ -38,10 +38,21 @@ export class DoctorDashboardPageComponent implements OnInit {
     diagnosis: string;
     followUpInstructions: string;
   }> = [];
+  protected readonly prescriptionAppointments: Array<{ id: string; label: string }> = [];
+  protected readonly recentPrescriptions: Array<{
+    patientName: string;
+    medication: string;
+    dosage: string;
+    durationDays: number;
+    issuedAt: string;
+    instructions: string;
+  }> = [];
   protected actionMessage = '';
   protected scheduleMessage = '';
   protected noteMessage = '';
   protected noteError = '';
+  protected prescriptionMessage = '';
+  protected prescriptionError = '';
   protected shiftStart = '09:00';
   protected shiftEnd = '17:00';
   protected consultationFee = 0;
@@ -52,6 +63,11 @@ export class DoctorDashboardPageComponent implements OnInit {
   protected noteSummary = '';
   protected noteDiagnosis = '';
   protected noteFollowUpInstructions = '';
+  protected selectedPrescriptionAppointmentId = '';
+  protected prescriptionMedication = '';
+  protected prescriptionDosage = '';
+  protected prescriptionDurationDays = 7;
+  protected prescriptionInstructions = '';
 
   private readonly usersMap = new Map<string, User>();
   private doctorProfile: DoctorProfile | null = null;
@@ -95,8 +111,9 @@ export class DoctorDashboardPageComponent implements OnInit {
       this.pendingReviews = reports.filter((report) => report.doctorId === this.doctorId && report.status === 'pending').length;
     });
 
-    this.healthcareDataService.getPrescriptions().subscribe((prescriptions) => {
-      this.prescriptionRequests = prescriptions.filter((prescription) => prescription.doctorId === this.doctorId).length;
+    this.healthcareDataService.getPrescriptionsForDoctor(this.doctorId).subscribe((prescriptions) => {
+      this.prescriptionRequests = prescriptions.length;
+      this.populateRecentPrescriptions(prescriptions);
     });
 
     this.healthcareDataService.getEncounterNotesForDoctor(this.doctorId).subscribe((notes) => {
@@ -209,6 +226,41 @@ export class DoctorDashboardPageComponent implements OnInit {
     }
   }
 
+  protected savePrescription(): void {
+    if (
+      !this.selectedPrescriptionAppointmentId ||
+      !this.prescriptionMedication.trim() ||
+      !this.prescriptionDosage.trim() ||
+      this.prescriptionDurationDays <= 0
+    ) {
+      this.prescriptionError = 'Select an appointment and complete medication, dosage, and duration before issuing.';
+      this.prescriptionMessage = '';
+      return;
+    }
+
+    try {
+      this.healthcareDataService.addPrescription({
+        appointmentId: this.selectedPrescriptionAppointmentId,
+        doctorId: this.doctorId,
+        medication: this.prescriptionMedication,
+        dosage: this.prescriptionDosage,
+        durationDays: this.prescriptionDurationDays,
+        instructions: this.prescriptionInstructions
+      });
+
+      this.prescriptionMessage = 'Prescription issued successfully.';
+      this.prescriptionError = '';
+      this.selectedPrescriptionAppointmentId = '';
+      this.prescriptionMedication = '';
+      this.prescriptionDosage = '';
+      this.prescriptionDurationDays = 7;
+      this.prescriptionInstructions = '';
+    } catch {
+      this.prescriptionError = 'Could not issue prescription for this appointment.';
+      this.prescriptionMessage = '';
+    }
+  }
+
   private refreshAppointments(): void {
     this.healthcareDataService.getAppointmentsForDoctor(this.doctorId).subscribe((appointments) => {
       const today = new Date().toDateString();
@@ -250,7 +302,36 @@ export class DoctorDashboardPageComponent implements OnInit {
             label: `${this.resolvePatientName(appointment.patientId)} | ${new Date(appointment.startsAt).toLocaleString()} | ${appointment.reason}`
           }))
       );
+
+      this.prescriptionAppointments.splice(
+        0,
+        this.prescriptionAppointments.length,
+        ...appointments
+          .filter((appointment) => appointment.status !== 'requested' && appointment.status !== 'cancelled')
+          .map((appointment) => ({
+            id: appointment.id,
+            label: `${this.resolvePatientName(appointment.patientId)} | ${new Date(appointment.startsAt).toLocaleString()} | ${appointment.reason}`
+          }))
+      );
     });
+  }
+
+  private populateRecentPrescriptions(prescriptions: Prescription[]): void {
+    this.recentPrescriptions.splice(
+      0,
+      this.recentPrescriptions.length,
+      ...prescriptions
+        .slice()
+        .sort((left, right) => new Date(right.issuedAt).getTime() - new Date(left.issuedAt).getTime())
+        .map((prescription) => ({
+          patientName: this.resolvePatientName(prescription.patientId),
+          medication: prescription.medication,
+          dosage: prescription.dosage,
+          durationDays: prescription.durationDays,
+          issuedAt: new Date(prescription.issuedAt).toLocaleString(),
+          instructions: prescription.instructions ?? 'No additional instructions.'
+        }))
+    );
   }
 
   protected canApprove(status: string): boolean {

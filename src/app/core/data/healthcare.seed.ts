@@ -120,21 +120,25 @@ export const appointmentsSeed: Appointment[] = [
 export const prescriptionsSeed: Prescription[] = [
   {
     id: 'pr-001',
+    appointmentId: 'ap-001',
     patientId: 'p-001',
     doctorId: 'd-001',
     issuedAt: '2026-04-19T09:30:00.000Z',
     medication: 'Amlodipine',
     dosage: '5 mg once daily',
-    durationDays: 30
+    durationDays: 30,
+    instructions: 'Take after breakfast and continue daily blood pressure logging.'
   },
   {
     id: 'pr-002',
+    appointmentId: 'ap-002',
     patientId: 'p-001',
     doctorId: 'd-002',
     issuedAt: '2026-04-15T10:00:00.000Z',
     medication: 'Vitamin D3',
     dosage: '60k IU weekly',
-    durationDays: 56
+    durationDays: 56,
+    instructions: 'One sachet weekly after dinner for eight weeks.'
   }
 ];
 

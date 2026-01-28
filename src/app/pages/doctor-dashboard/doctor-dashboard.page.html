@@ -146,4 +146,53 @@
       </div>
     </div>
   </section>
+
+  <section class="panel prescriptions-panel">
+    <h2>Prescription Management</h2>
+    <p class="helper">Issue medication instructions from completed or active consultations and keep the patient record current.</p>
+
+    <div class="notes-grid">
+      <form class="note-form" (ngSubmit)="savePrescription()">
+        <label for="prescriptionAppointmentId">Appointment</label>
+        <select id="prescriptionAppointmentId" name="prescriptionAppointmentId" [(ngModel)]="selectedPrescriptionAppointmentId">
+          <option value="">Select appointment</option>
+          <option *ngFor="let appointment of prescriptionAppointments" [value]="appointment.id">
+            {{ appointment.label }}
+          </option>
+        </select>
+
+        <label for="prescriptionMedication">Medication</label>
+        <input id="prescriptionMedication" name="prescriptionMedication" type="text" [(ngModel)]="prescriptionMedication" placeholder="Aspirin 75 mg" />
+
+        <label for="prescriptionDosage">Dosage</label>
+        <input id="prescriptionDosage" name="prescriptionDosage" type="text" [(ngModel)]="prescriptionDosage" placeholder="One tablet after breakfast" />
+
+        <label for="prescriptionDurationDays">Duration (Days)</label>
+        <input id="prescriptionDurationDays" name="prescriptionDurationDays" type="number" min="1" [(ngModel)]="prescriptionDurationDays" />
+
+        <label for="prescriptionInstructions">Instructions</label>
+        <textarea id="prescriptionInstructions" name="prescriptionInstructions" rows="3" [(ngModel)]="prescriptionInstructions" placeholder="Add meal timing, caution notes, or monitoring guidance"></textarea>
+
+        <p class="note-message" *ngIf="prescriptionMessage">{{ prescriptionMessage }}</p>
+        <p class="note-error" *ngIf="prescriptionError">{{ prescriptionError }}</p>
+
+        <button type="submit">Issue Prescription</button>
+      </form>
+
+      <div class="notes-list">
+        <h3>Recent Prescriptions</h3>
+        <ul *ngIf="recentPrescriptions.length; else noRecentPrescriptions">
+          <li *ngFor="let prescription of recentPrescriptions">
+            <strong>{{ prescription.medication }}</strong>
+            <span>{{ prescription.patientName }} | {{ prescription.issuedAt }}</span>
+            <span>{{ prescription.dosage }} | {{ prescription.durationDays }} days</span>
+            <span>Instructions: {{ prescription.instructions }}</span>
+          </li>
+        </ul>
+        <ng-template #noRecentPrescriptions>
+          <p class="helper">No prescriptions have been issued yet.</p>
+        </ng-template>
+      </div>
+    </div>
+  </section>
 </section>

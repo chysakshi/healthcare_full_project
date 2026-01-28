@@ -29,6 +29,7 @@ export class HealthcareDataService {
   private readonly appointmentsSubject = new BehaviorSubject<Appointment[]>([...appointmentsSeed]);
   private readonly doctorProfilesSubject = new BehaviorSubject<DoctorProfile[]>([...doctorProfilesSeed]);
   private readonly encounterNotesSubject = new BehaviorSubject<EncounterNote[]>([...encounterNotesSeed]);
+  private readonly prescriptionsSubject = new BehaviorSubject<Prescription[]>([...prescriptionsSeed]);
 
   getUsers(): Observable<User[]> {
     return this.usersSubject.asObservable();
@@ -184,7 +185,44 @@ export class HealthcareDataService {
   }
 
   getPrescriptionsForPatient(patientId: string): Observable<Prescription[]> {
-    return of(prescriptionsSeed.filter((prescription) => prescription.patientId === patientId));
+    return this.prescriptionsSubject
+      .asObservable()
+      .pipe(map((prescriptions) => prescriptions.filter((prescription) => prescription.patientId === patientId)));
+  }
+
+  getPrescriptionsForDoctor(doctorId: string): Observable<Prescription[]> {
+    return this.prescriptionsSubject
+      .asObservable()
+      .pipe(map((prescriptions) => prescriptions.filter((prescription) => prescription.doctorId === doctorId)));
+  }
+
+  addPrescription(payload: {
+    appointmentId: string;
+    doctorId: string;
+    medication: string;
+    dosage: string;
+    durationDays: number;
+    instructions: string;
+  }): Prescription {
+    const appointment = this.appointmentsSubject.value.find((entry) => entry.id === payload.appointmentId);
+    if (!appointment || appointment.doctorId !== payload.doctorId) {
+      throw new Error('Prescription cannot be created for this appointment.');
+    }
+
+    const prescription: Prescription = {
+      id: `pr-${Date.now()}`,
+      appointmentId: appointment.id,
+      patientId: appointment.patientId,
+      doctorId: payload.doctorId,
+      issuedAt: new Date().toISOString(),
+      medication: payload.medication.trim(),
+      dosage: payload.dosage.trim(),
+      durationDays: payload.durationDays,
+      instructions: payload.instructions.trim()
+    };
+
+    this.prescriptionsSubject.next([prescription, ...this.prescriptionsSubject.value]);
+    return prescription;
   }
 
   getReportsForPatient(patientId: string): Observable<MedicalReport[]> {
@@ -245,7 +283,7 @@ export class HealthcareDataService {
   }
 
   getPrescriptions(): Observable<Prescription[]> {
-    return of(prescriptionsSeed);
+    return this.prescriptionsSubject.asObservable();
   }
 
   getReports(): Observable<MedicalReport[]> {
