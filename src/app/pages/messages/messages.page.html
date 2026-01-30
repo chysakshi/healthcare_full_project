@@ -1,0 +1,80 @@
+<section class="messages-page">
+  <header>
+    <h1>Messages</h1>
+    <p>Review care conversations, follow up with providers, and keep treatment communication in one thread.</p>
+  </header>
+
+  <section class="messages-layout" *ngIf="!isLoading; else loadingState">
+    <aside class="thread-list panel">
+      <h2>Conversations</h2>
+      <p class="empty" *ngIf="!conversations.length">No conversations available yet.</p>
+
+      <button
+        type="button"
+        class="thread-card"
+        *ngFor="let conversation of conversations"
+        [class.is-active]="conversation.id === selectedConversationId"
+        (click)="selectConversation(conversation.id)"
+      >
+        <div>
+          <strong>{{ conversation.title }}</strong>
+          <span>{{ conversation.subtitle }}</span>
+        </div>
+        <div class="thread-meta">
+          <small>{{ conversation.updatedAt }}</small>
+          <span class="badge" *ngIf="conversation.unreadCount">{{ conversation.unreadCount }}</span>
+        </div>
+      </button>
+    </aside>
+
+    <section class="conversation-panel panel" *ngIf="selectedConversation as conversation; else emptyConversation">
+      <h2>{{ conversation.title }}</h2>
+      <p class="helper">Latest update: {{ conversation.updatedAt }}</p>
+
+      <div class="message-stream">
+        <article
+          class="message-bubble"
+          *ngFor="let message of conversation.messages"
+          [class.own-message]="isOwnMessage(message.senderId)"
+        >
+          <p>{{ message.content }}</p>
+          <small>{{ message.senderRole | titlecase }} | {{ message.sentAt | date:'medium' }}</small>
+        </article>
+      </div>
+
+      <div class="composer" *ngIf="currentUser?.role !== 'admin'; else readOnlyState">
+        <label for="draftMessage">Reply</label>
+        <textarea
+          id="draftMessage"
+          name="draftMessage"
+          rows="4"
+          [(ngModel)]="draftMessage"
+          placeholder="Type your message for this conversation"
+        ></textarea>
+
+        <p class="status success" *ngIf="statusMessage">{{ statusMessage }}</p>
+        <p class="status error" *ngIf="errorMessage">{{ errorMessage }}</p>
+
+        <button type="button" (click)="sendMessage()">Send Message</button>
+      </div>
+
+      <ng-template #readOnlyState>
+        <p class="helper">Admin access is read-only for conversation review.</p>
+      </ng-template>
+    </section>
+
+    <ng-template #emptyConversation>
+      <section class="conversation-panel panel">
+        <h2>Conversation Detail</h2>
+        <p class="empty">Select a conversation to review the full message history.</p>
+      </section>
+    </ng-template>
+  </section>
+
+  <ng-template #loadingState>
+    <section class="panel">
+      <h2>Messages</h2>
+      <p class="helper">Loading conversation threads...</p>
+    </section>
+  </ng-template>
+</section>

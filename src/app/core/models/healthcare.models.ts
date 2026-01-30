@@ -79,6 +79,14 @@ export interface EncounterNote {
   followUpInstructions: string;
 }
 
+export interface ThreadMessage {
+  id: string;
+  senderId: string;
+  senderRole: UserRole;
+  content: string;
+  sentAt: string;
+}
+
 export interface MessageThread {
   id: string;
   patientId: string;
@@ -86,4 +94,5 @@ export interface MessageThread {
   lastMessage: string;
   unreadCount: number;
   updatedAt: string;
+  messages: ThreadMessage[];
 }

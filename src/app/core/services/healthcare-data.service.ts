@@ -8,6 +8,7 @@ import {
   MedicalReport,
   MessageThread,
   Prescription,
+  UserRole,
   User
 } from '../models/healthcare.models';
 import {
@@ -30,6 +31,7 @@ export class HealthcareDataService {
   private readonly doctorProfilesSubject = new BehaviorSubject<DoctorProfile[]>([...doctorProfilesSeed]);
   private readonly encounterNotesSubject = new BehaviorSubject<EncounterNote[]>([...encounterNotesSeed]);
   private readonly prescriptionsSubject = new BehaviorSubject<Prescription[]>([...prescriptionsSeed]);
+  private readonly messageThreadsSubject = new BehaviorSubject<MessageThread[]>([...messageThreadsSeed]);
 
   getUsers(): Observable<User[]> {
     return this.usersSubject.asObservable();
@@ -279,7 +281,86 @@ export class HealthcareDataService {
   }
 
   getMessageThreads(): Observable<MessageThread[]> {
-    return of(messageThreadsSeed);
+    return this.messageThreadsSubject.asObservable();
+  }
+
+  getMessageThreadsForUser(userId: string, role: UserRole): Observable<MessageThread[]> {
+    return this.messageThreadsSubject.asObservable().pipe(
+      map((threads) => {
+        if (role === 'admin') {
+          return threads;
+        }
+
+        return threads.filter((thread) => thread.patientId === userId || thread.doctorId === userId);
+      })
+    );
+  }
+
+  markThreadRead(threadId: string): void {
+    this.messageThreadsSubject.next(
+      this.messageThreadsSubject.value.map((thread) =>
+        thread.id === threadId
+          ? {
+              ...thread,
+              unreadCount: 0
+            }
+          : thread
+      )
+    );
+  }
+
+  addThreadMessage(payload: {
+    threadId: string;
+    senderId: string;
+    senderRole: UserRole;
+    content: string;
+  }): MessageThread {
+    let updatedThread: MessageThread | null = null;
+    const trimmedContent = payload.content.trim();
+    if (!trimmedContent) {
+      throw new Error('Message content is required.');
+    }
+
+    this.messageThreadsSubject.next(
+      this.messageThreadsSubject.value.map((thread) => {
+        if (thread.id !== payload.threadId) {
+          return thread;
+        }
+
+        if (
+          payload.senderRole !== 'admin' &&
+          thread.patientId !== payload.senderId &&
+          thread.doctorId !== payload.senderId
+        ) {
+          throw new Error('Message sender is not part of this thread.');
+        }
+
+        updatedThread = {
+          ...thread,
+          lastMessage: trimmedContent,
+          unreadCount: thread.unreadCount + 1,
+          updatedAt: new Date().toISOString(),
+          messages: [
+            ...thread.messages,
+            {
+              id: `msg-${Date.now()}`,
+              senderId: payload.senderId,
+              senderRole: payload.senderRole,
+              content: trimmedContent,
+              sentAt: new Date().toISOString()
+            }
+          ]
+        };
+
+        return updatedThread;
+      })
+    );
+
+    if (!updatedThread) {
+      throw new Error('Message thread was not found.');
+    }
+
+    return updatedThread;
   }
 
   getPrescriptions(): Observable<Prescription[]> {

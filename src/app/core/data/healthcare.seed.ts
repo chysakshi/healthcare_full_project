@@ -192,7 +192,40 @@ export const messageThreadsSeed: MessageThread[] = [
     doctorId: 'd-001',
     lastMessage: 'Please continue medication and share your BP logs tomorrow.',
     unreadCount: 1,
-    updatedAt: '2026-04-20T12:40:00.000Z'
+    updatedAt: '2026-04-20T12:40:00.000Z',
+    messages: [
+      {
+        id: 'msg-001',
+        senderId: 'p-001',
+        senderRole: 'patient',
+        content: 'My blood pressure readings were stable over the weekend.',
+        sentAt: '2026-04-20T12:15:00.000Z'
+      },
+      {
+        id: 'msg-002',
+        senderId: 'd-001',
+        senderRole: 'doctor',
+        content: 'Please continue medication and share your BP logs tomorrow.',
+        sentAt: '2026-04-20T12:40:00.000Z'
+      }
+    ]
+  },
+  {
+    id: 'th-002',
+    patientId: 'p-002',
+    doctorId: 'd-002',
+    lastMessage: 'Your routine review can stay virtual if symptoms remain stable.',
+    unreadCount: 0,
+    updatedAt: '2026-04-18T10:20:00.000Z',
+    messages: [
+      {
+        id: 'msg-003',
+        senderId: 'd-002',
+        senderRole: 'doctor',
+        content: 'Your routine review can stay virtual if symptoms remain stable.',
+        sentAt: '2026-04-18T10:20:00.000Z'
+      }
+    ]
   }
 ];
 

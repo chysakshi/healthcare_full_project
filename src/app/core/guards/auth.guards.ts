@@ -16,11 +16,12 @@ export const authGuard: CanActivateFn = () => {
   return authService.isAuthenticated() ? true : router.createUrlTree(['/login']);
 };
 
-export const roleGuard = (role: UserRole): CanActivateFn => {
+export const roleGuard = (role: UserRole | UserRole[]): CanActivateFn => {
   return () => {
     const authService = inject(AuthService);
     const router = inject(Router);
     const currentUser = authService.currentUser;
+    const allowedRoles = Array.isArray(role) ? role : [role];
 
     if (!currentUser) {
       return router.createUrlTree(['/login']);
@@ -30,7 +31,7 @@ export const roleGuard = (role: UserRole): CanActivateFn => {
       return true;
     }
 
-    return authService.hasRole(role) ? true : router.createUrlTree([roleRouteMap[currentUser.role]]);
+    return allowedRoles.includes(currentUser.role) ? true : router.createUrlTree([roleRouteMap[currentUser.role]]);
   };
 };
 

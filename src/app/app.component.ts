@@ -28,6 +28,7 @@ export class AppComponent {
     { label: 'Patient Dashboard', link: '/patient/dashboard', access: ['patient', 'admin'] },
     { label: 'Patient Profile', link: '/patient/profile', access: ['patient', 'admin'] },
     { label: 'Doctor Directory', link: '/patient/doctors', access: ['patient', 'admin'] },
+    { label: 'Messages', link: '/messages', access: ['patient', 'doctor', 'admin'] },
     { label: 'Doctor Dashboard', link: '/doctor/dashboard', access: ['doctor', 'admin'] },
     { label: 'Admin Dashboard', link: '/admin/dashboard', access: ['admin'] }
   ];
