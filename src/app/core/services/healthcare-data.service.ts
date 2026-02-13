@@ -32,6 +32,7 @@ export class HealthcareDataService {
   private readonly encounterNotesSubject = new BehaviorSubject<EncounterNote[]>([...encounterNotesSeed]);
   private readonly prescriptionsSubject = new BehaviorSubject<Prescription[]>([...prescriptionsSeed]);
   private readonly messageThreadsSubject = new BehaviorSubject<MessageThread[]>([...messageThreadsSeed]);
+  private readonly invoicesSubject = new BehaviorSubject<Invoice[]>([...invoicesSeed]);
 
   getUsers(): Observable<User[]> {
     return this.usersSubject.asObservable();
@@ -232,7 +233,50 @@ export class HealthcareDataService {
   }
 
   getInvoicesForPatient(patientId: string): Observable<Invoice[]> {
-    return of(invoicesSeed.filter((invoice) => invoice.patientId === patientId));
+    return this.invoicesSubject
+      .asObservable()
+      .pipe(map((invoices) => invoices.filter((invoice) => invoice.patientId === patientId)));
+  }
+
+  getInvoicesForUser(userId: string, role: UserRole): Observable<Invoice[]> {
+    return this.invoicesSubject.asObservable().pipe(
+      map((invoices) => {
+        if (role === 'admin') {
+          return invoices;
+        }
+
+        return invoices.filter((invoice) => invoice.patientId === userId);
+      })
+    );
+  }
+
+  markInvoiceAsPaid(invoiceId: string, actorId?: string): Invoice {
+    let updatedInvoice: Invoice | null = null;
+
+    this.invoicesSubject.next(
+      this.invoicesSubject.value.map((invoice) => {
+        if (invoice.id !== invoiceId) {
+          return invoice;
+        }
+
+        if (actorId && invoice.patientId !== actorId) {
+          throw new Error('Invoice payment is not allowed for this user.');
+        }
+
+        updatedInvoice = {
+          ...invoice,
+          status: 'paid'
+        };
+
+        return updatedInvoice;
+      })
+    );
+
+    if (!updatedInvoice) {
+      throw new Error('Invoice was not found.');
+    }
+
+    return updatedInvoice;
   }
 
   getEncounterNotes(): Observable<EncounterNote[]> {
@@ -372,7 +416,7 @@ export class HealthcareDataService {
   }
 
   getInvoices(): Observable<Invoice[]> {
-    return of(invoicesSeed);
+    return this.invoicesSubject.asObservable();
   }
 
   private isDoctorAvailableForSlot(profile: DoctorProfile, startsAt: Date): boolean {

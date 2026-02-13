@@ -1,0 +1,173 @@
+.billing-page {
+  display: grid;
+  gap: 16px;
+}
+
+header h1 {
+  margin: 0;
+  color: #0f172a;
+}
+
+header p {
+  margin: 8px 0 0;
+  color: #475569;
+}
+
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.summary-card,
+.panel {
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  background: #ffffff;
+  padding: 14px;
+}
+
+.summary-card {
+  background: linear-gradient(180deg, #fffdf7 0%, #ffffff 100%);
+}
+
+.summary-card h2,
+.panel h2 {
+  margin: 0;
+  color: #334155;
+  font-size: 1rem;
+}
+
+.summary-card strong {
+  display: block;
+  margin: 8px 0 4px;
+  color: #0f766e;
+  font-size: 1.5rem;
+}
+
+.summary-card p {
+  margin: 0;
+  color: #64748b;
+}
+
+.filter-panel {
+  background: linear-gradient(140deg, #eff6ff 0%, #f8fafc 100%);
+}
+
+.filter-row {
+  margin-top: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.filter-row button {
+  border: 1px solid #bfdbfe;
+  border-radius: 999px;
+  background: #ffffff;
+  color: #1e3a8a;
+  padding: 6px 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.filter-row button.is-active {
+  border-color: #2563eb;
+  background: #2563eb;
+  color: #ffffff;
+}
+
+.status {
+  margin: 10px 0 0;
+  font-weight: 700;
+}
+
+.status.success {
+  color: #166534;
+}
+
+.status.error {
+  color: #b91c1c;
+}
+
+.invoices-panel {
+  background: linear-gradient(160deg, #fff7ed 0%, #ffffff 100%);
+}
+
+.invoice-grid {
+  margin-top: 12px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.invoice-card {
+  border: 1px solid #fed7aa;
+  border-radius: 12px;
+  padding: 12px;
+  background: #ffffff;
+  display: grid;
+  gap: 6px;
+}
+
+.invoice-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+
+.invoice-card strong,
+.invoice-card p {
+  margin: 0;
+}
+
+.invoice-card p {
+  color: #475569;
+}
+
+.status-chip {
+  border-radius: 999px;
+  padding: 3px 8px;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.status-chip.pending {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.status-chip.overdue {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.status-chip.paid {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.invoice-card button {
+  margin-top: 6px;
+  width: fit-content;
+  border: 0;
+  border-radius: 9px;
+  background: linear-gradient(135deg, #16a34a, #0f766e);
+  color: #ffffff;
+  font-weight: 700;
+  padding: 8px 12px;
+  cursor: pointer;
+}
+
+.empty {
+  margin: 10px 0 0;
+  color: #64748b;
+}
+
+@media (max-width: 900px) {
+  .summary-grid,
+  .invoice-grid {
+    grid-template-columns: 1fr;
+  }
+}

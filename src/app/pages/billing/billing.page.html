@@ -1,0 +1,68 @@
+<section class="billing-page">
+  <header>
+    <h1>Billing and Invoices</h1>
+    <p *ngIf="!isAdminView">Track outstanding balances, complete invoice payments, and review past transactions.</p>
+    <p *ngIf="isAdminView">Review billing status across patient accounts and monitor payment completion trends.</p>
+  </header>
+
+  <section class="summary-grid" *ngIf="!isLoading; else loadingState">
+    <article class="summary-card">
+      <h2>Outstanding Amount</h2>
+      <strong>INR {{ totalOutstanding }}</strong>
+      <p>{{ pendingCount }} pending, {{ overdueCount }} overdue</p>
+    </article>
+    <article class="summary-card">
+      <h2>Paid Amount</h2>
+      <strong>INR {{ totalPaidAmount }}</strong>
+      <p>{{ paidCount }} invoices settled</p>
+    </article>
+    <article class="summary-card">
+      <h2>Total Invoices</h2>
+      <strong>{{ invoices.length }}</strong>
+      <p>Filtered view: {{ selectedFilter | titlecase }}</p>
+    </article>
+  </section>
+
+  <section class="panel filter-panel" *ngIf="!isLoading">
+    <h2>Invoice Filter</h2>
+    <div class="filter-row">
+      <button type="button" [class.is-active]="selectedFilter === 'all'" (click)="applyFilter('all')">All</button>
+      <button type="button" [class.is-active]="selectedFilter === 'pending'" (click)="applyFilter('pending')">Pending</button>
+      <button type="button" [class.is-active]="selectedFilter === 'overdue'" (click)="applyFilter('overdue')">Overdue</button>
+      <button type="button" [class.is-active]="selectedFilter === 'paid'" (click)="applyFilter('paid')">Paid</button>
+    </div>
+
+    <p class="status success" *ngIf="billingMessage">{{ billingMessage }}</p>
+    <p class="status error" *ngIf="billingError">{{ billingError }}</p>
+  </section>
+
+  <section class="panel invoices-panel" *ngIf="!isLoading">
+    <h2>Invoice Ledger</h2>
+
+    <div class="invoice-grid" *ngIf="filteredInvoices.length; else emptyState">
+      <article class="invoice-card" *ngFor="let invoice of filteredInvoices">
+        <div class="invoice-head">
+          <strong>{{ invoice.id }}</strong>
+          <span class="status-chip" [class]="'status-chip ' + invoice.status">{{ invoice.status | titlecase }}</span>
+        </div>
+
+        <p>Amount: INR {{ invoice.amount }}</p>
+        <p>Issued: {{ invoice.issuedAt | date:'mediumDate' }}</p>
+        <p *ngIf="isAdminView">Patient ID: {{ invoice.patientId }}</p>
+
+        <button type="button" *ngIf="canPay(invoice)" (click)="payInvoice(invoice.id)">Pay Invoice</button>
+      </article>
+    </div>
+
+    <ng-template #emptyState>
+      <p class="empty">No invoices available for this filter.</p>
+    </ng-template>
+  </section>
+
+  <ng-template #loadingState>
+    <section class="panel">
+      <h2>Billing</h2>
+      <p class="empty">Loading invoice data...</p>
+    </section>
+  </ng-template>
+</section>
