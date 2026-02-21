@@ -11,6 +11,16 @@
       <p>Across patients, doctors, and administrators</p>
     </article>
     <article class="card">
+      <h2>Patient Accounts</h2>
+      <strong>{{ totalPatients }}</strong>
+      <p>Active care recipients on the platform</p>
+    </article>
+    <article class="card">
+      <h2>Doctor Accounts</h2>
+      <strong>{{ totalDoctors }}</strong>
+      <p>Provider profiles with clinical access</p>
+    </article>
+    <article class="card">
       <h2>Appointments Today</h2>
       <strong>{{ appointmentsToday }}</strong>
       <p>{{ completionRate }}% completion rate</p>
@@ -20,6 +30,86 @@
       <strong>{{ openBillingTickets }}</strong>
       <p>Requires billing and operations follow-up</p>
     </article>
+    <article class="card">
+      <h2>Inactive Accounts</h2>
+      <strong>{{ inactiveUsers }}</strong>
+      <p>Pending reactivation review</p>
+    </article>
+  </section>
+
+  <section class="panel management-panel">
+    <h2>Doctor and Patient Management</h2>
+
+    <div class="filter-row">
+      <button type="button" [class.is-active]="selectedRoleFilter === 'all'" (click)="applyRoleFilter('all')">All</button>
+      <button type="button" [class.is-active]="selectedRoleFilter === 'patient'" (click)="applyRoleFilter('patient')">Patients</button>
+      <button type="button" [class.is-active]="selectedRoleFilter === 'doctor'" (click)="applyRoleFilter('doctor')">Doctors</button>
+    </div>
+
+    <p class="status success" *ngIf="accountMessage">{{ accountMessage }}</p>
+    <p class="status error" *ngIf="accountError">{{ accountError }}</p>
+
+    <div class="user-grid" *ngIf="managedUsers.length; else noManagedUsers">
+      <article class="user-card" *ngFor="let user of managedUsers">
+        <h3>{{ user.fullName }}</h3>
+        <p>{{ user.role | titlecase }} | {{ user.email }}</p>
+        <p>Phone: {{ user.phone }}</p>
+        <p *ngIf="user.role === 'doctor'">Specialization: {{ user.specialization }}</p>
+        <span class="state-chip" [class]="'state-chip ' + (user.isActive ? 'active' : 'inactive')">
+          {{ user.isActive ? 'Active' : 'Inactive' }}
+        </span>
+
+        <button type="button" class="toggle-btn" (click)="toggleUserStatus(user)">
+          {{ user.isActive ? 'Deactivate Account' : 'Activate Account' }}
+        </button>
+      </article>
+    </div>
+
+    <ng-template #noManagedUsers>
+      <p class="helper">No user accounts match the selected filter.</p>
+    </ng-template>
+  </section>
+
+  <section class="panel onboarding-panel">
+    <h2>Onboard New Account</h2>
+    <p class="helper">Create doctor or patient access directly from the admin workspace.</p>
+
+    <div class="form-grid">
+      <label>
+        Role
+        <select [(ngModel)]="newRole">
+          <option value="patient">Patient</option>
+          <option value="doctor">Doctor</option>
+        </select>
+      </label>
+
+      <label>
+        Full Name
+        <input type="text" [(ngModel)]="newFullName" />
+      </label>
+
+      <label>
+        Email
+        <input type="email" [(ngModel)]="newEmail" />
+      </label>
+
+      <label>
+        Temporary Password
+        <input type="text" [(ngModel)]="newPassword" />
+      </label>
+
+      <label>
+        Phone
+        <input type="text" [(ngModel)]="newPhone" />
+      </label>
+
+      <label *ngIf="newRole === 'doctor'">
+        Specialization
+        <input type="text" [(ngModel)]="newSpecialization" />
+      </label>
+    </div>
+
+    <button type="button" class="create-btn" (click)="createAccount()">Create Account</button>
   </section>
 
   <section class="panel">

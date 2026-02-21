@@ -55,6 +55,10 @@ export class HealthcareDataService {
     this.usersSubject.next([...this.usersSubject.value, user]);
   }
 
+  getUsersByRole(role: UserRole): Observable<User[]> {
+    return this.usersSubject.asObservable().pipe(map((users) => users.filter((user) => user.role === role)));
+  }
+
   updateUser(userId: string, changes: Partial<User>): User | null {
     let updatedUser: User | null = null;
 
@@ -70,6 +74,70 @@ export class HealthcareDataService {
     );
 
     return updatedUser;
+  }
+
+  setUserActiveStatus(userId: string, isActive: boolean): User | null {
+    return this.updateUser(userId, { isActive });
+  }
+
+  createManagedUser(payload: {
+    fullName: string;
+    email: string;
+    password: string;
+    role: 'patient' | 'doctor';
+    phone?: string;
+    bloodGroup?: string;
+    emergencyContact?: string;
+    specialization?: string;
+    experienceYears?: number;
+    consultationFee?: number;
+    languages?: string[];
+    availableDays?: string[];
+    shiftStart?: string;
+    shiftEnd?: string;
+    acceptingAppointments?: boolean;
+    rating?: number;
+  }): { user: User; profile?: DoctorProfile } {
+    const normalizedEmail = payload.email.trim().toLowerCase();
+    if (this.findUserByEmail(normalizedEmail)) {
+      throw new Error('A user with this email already exists.');
+    }
+
+    const identifierPrefix = payload.role === 'doctor' ? 'd' : 'p';
+    const user: User = {
+      id: `${identifierPrefix}-${Date.now()}`,
+      fullName: payload.fullName.trim(),
+      email: normalizedEmail,
+      password: payload.password.trim(),
+      role: payload.role,
+      isActive: true,
+      phone: payload.phone?.trim(),
+      bloodGroup: payload.bloodGroup,
+      emergencyContact: payload.emergencyContact?.trim()
+    };
+
+    this.usersSubject.next([...this.usersSubject.value, user]);
+
+    if (payload.role !== 'doctor') {
+      return { user };
+    }
+
+    const profile: DoctorProfile = {
+      id: `dp-${Date.now()}`,
+      userId: user.id,
+      specialization: payload.specialization?.trim() || 'General Medicine',
+      experienceYears: payload.experienceYears ?? 1,
+      consultationFee: payload.consultationFee ?? 800,
+      languages: payload.languages?.length ? payload.languages : ['English'],
+      availableDays: payload.availableDays?.length ? payload.availableDays : ['Mon', 'Wed', 'Fri'],
+      shiftStart: payload.shiftStart ?? '09:00',
+      shiftEnd: payload.shiftEnd ?? '17:00',
+      acceptingAppointments: payload.acceptingAppointments ?? true,
+      rating: payload.rating ?? 4.5
+    };
+
+    this.doctorProfilesSubject.next([...this.doctorProfilesSubject.value, profile]);
+    return { user, profile };
   }
 
   getDoctorProfiles(): Observable<DoctorProfile[]> {
