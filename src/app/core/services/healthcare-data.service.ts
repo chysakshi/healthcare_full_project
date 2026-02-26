@@ -255,6 +255,81 @@ export class HealthcareDataService {
     );
   }
 
+  reassignAppointmentDoctor(appointmentId: string, doctorId: string): Appointment {
+    const appointment = this.appointmentsSubject.value.find((entry) => entry.id === appointmentId);
+    if (!appointment) {
+      throw new Error('Appointment was not found.');
+    }
+
+    const doctor = this.usersSubject.value.find((entry) => entry.id === doctorId && entry.role === 'doctor' && entry.isActive);
+    const profile = this.getDoctorProfileSnapshotByUserId(doctorId);
+    const startsAtDate = new Date(appointment.startsAt);
+
+    if (!doctor || !profile || !this.isDoctorAvailableForSlot(profile, startsAtDate)) {
+      throw new Error('Selected doctor is unavailable for this appointment slot.');
+    }
+
+    let updatedAppointment: Appointment | null = null;
+
+    this.appointmentsSubject.next(
+      this.appointmentsSubject.value.map((entry) => {
+        if (entry.id !== appointmentId) {
+          return entry;
+        }
+
+        updatedAppointment = {
+          ...entry,
+          doctorId
+        };
+
+        return updatedAppointment;
+      })
+    );
+
+    if (!updatedAppointment) {
+      throw new Error('Appointment reassignment failed.');
+    }
+
+    return updatedAppointment;
+  }
+
+  adminRescheduleAppointment(appointmentId: string, startsAt: string): Appointment {
+    const appointment = this.appointmentsSubject.value.find((entry) => entry.id === appointmentId);
+    if (!appointment) {
+      throw new Error('Appointment was not found.');
+    }
+
+    const startsAtDate = new Date(startsAt);
+    const profile = this.getDoctorProfileSnapshotByUserId(appointment.doctorId);
+    if (!profile || !this.isDoctorAvailableForSlot(profile, startsAtDate)) {
+      throw new Error('Assigned doctor is unavailable for the selected schedule.');
+    }
+
+    let updatedAppointment: Appointment | null = null;
+
+    this.appointmentsSubject.next(
+      this.appointmentsSubject.value.map((entry) => {
+        if (entry.id !== appointmentId) {
+          return entry;
+        }
+
+        updatedAppointment = {
+          ...entry,
+          startsAt: startsAtDate.toISOString(),
+          status: 'rescheduled'
+        };
+
+        return updatedAppointment;
+      })
+    );
+
+    if (!updatedAppointment) {
+      throw new Error('Appointment reschedule failed.');
+    }
+
+    return updatedAppointment;
+  }
+
   getPrescriptionsForPatient(patientId: string): Observable<Prescription[]> {
     return this.prescriptionsSubject
       .asObservable()

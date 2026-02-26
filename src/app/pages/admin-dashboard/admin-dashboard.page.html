@@ -112,6 +112,68 @@
     <button type="button" class="create-btn" (click)="createAccount()">Create Account</button>
   </section>
 
+  <section class="panel appointment-ops-panel">
+    <h2>Appointment Operations</h2>
+    <p class="helper">Oversee schedule flow across all providers and apply operational interventions in one place.</p>
+
+    <div class="filter-row">
+      <button type="button" [class.is-active]="selectedAppointmentFilter === 'all'" (click)="applyAppointmentFilter('all')">All</button>
+      <button type="button" [class.is-active]="selectedAppointmentFilter === 'requested'" (click)="applyAppointmentFilter('requested')">Requested</button>
+      <button type="button" [class.is-active]="selectedAppointmentFilter === 'scheduled'" (click)="applyAppointmentFilter('scheduled')">Scheduled</button>
+      <button type="button" [class.is-active]="selectedAppointmentFilter === 'rescheduled'" (click)="applyAppointmentFilter('rescheduled')">Rescheduled</button>
+      <button type="button" [class.is-active]="selectedAppointmentFilter === 'completed'" (click)="applyAppointmentFilter('completed')">Completed</button>
+      <button type="button" [class.is-active]="selectedAppointmentFilter === 'cancelled'" (click)="applyAppointmentFilter('cancelled')">Cancelled</button>
+    </div>
+
+    <p class="status success" *ngIf="appointmentMessage">{{ appointmentMessage }}</p>
+    <p class="status error" *ngIf="appointmentError">{{ appointmentError }}</p>
+
+    <div class="appointment-grid" *ngIf="filteredAppointmentOperations.length; else noAppointments">
+      <article class="appointment-card" *ngFor="let appointment of filteredAppointmentOperations">
+        <h3>{{ appointment.patientName }}</h3>
+        <p>{{ appointment.startsAtLabel }} | {{ appointment.mode }}</p>
+        <p>Doctor: {{ appointment.doctorName }}</p>
+        <p>{{ appointment.reason }}</p>
+        <span class="state-chip" [class]="'state-chip ' + appointment.status">{{ appointment.status | titlecase }}</span>
+
+        <div class="actions-row">
+          <button type="button" (click)="updateAppointmentStatus(appointment.id, 'scheduled')">Set Scheduled</button>
+          <button type="button" (click)="updateAppointmentStatus(appointment.id, 'completed')">Set Completed</button>
+          <button type="button" (click)="updateAppointmentStatus(appointment.id, 'cancelled')">Set Cancelled</button>
+          <button type="button" class="secondary" (click)="openAppointmentEditor(appointment)">Edit Assignment</button>
+        </div>
+      </article>
+    </div>
+
+    <ng-template #noAppointments>
+      <p class="helper">No appointments match the current operation filter.</p>
+    </ng-template>
+
+    <section class="editor" *ngIf="selectedAppointmentId">
+      <h3>Assignment and Schedule Editor</h3>
+
+      <div class="form-grid">
+        <label>
+          Assigned Doctor
+          <select [(ngModel)]="selectedDoctorId">
+            <option value="" disabled>Select doctor</option>
+            <option *ngFor="let doctor of availableDoctors" [value]="doctor.id">{{ doctor.name }}</option>
+          </select>
+        </label>
+
+        <label>
+          Reschedule Slot
+          <input type="datetime-local" [(ngModel)]="selectedRescheduleAt" />
+        </label>
+      </div>
+
+      <div class="actions-row">
+        <button type="button" (click)="reassignAppointment()">Reassign Doctor</button>
+        <button type="button" (click)="rescheduleAppointment()">Apply Reschedule</button>
+      </div>
+    </section>
+  </section>
+
   <section class="panel">
     <h2>Operations Feed</h2>
     <ul>
