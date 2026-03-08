@@ -1,4 +1,5 @@
 import {
+  AppNotification,
   Appointment,
   DoctorProfile,
   EncounterNote,
@@ -240,5 +241,38 @@ export const encounterNotesSeed: EncounterNote[] = [
     summary: 'Patient reports improved exercise tolerance and stable home blood pressure readings.',
     diagnosis: 'Hypertension remains controlled on current medication regimen.',
     followUpInstructions: 'Continue current regimen and review in six weeks with updated lipid panel.'
+  }
+];
+
+export const notificationsSeed: AppNotification[] = [
+  {
+    id: 'nt-001',
+    recipientId: 'p-001',
+    category: 'system',
+    title: 'Profile Completion Reminder',
+    body: 'Please verify your emergency contact details before your next visit.',
+    createdAt: '2026-04-21T07:30:00.000Z',
+    read: false,
+    priority: 'medium'
+  },
+  {
+    id: 'nt-002',
+    recipientRole: 'doctor',
+    category: 'message',
+    title: 'Unread Conversations',
+    body: 'You have conversations with unread patient messages.',
+    createdAt: '2026-04-21T08:00:00.000Z',
+    read: false,
+    priority: 'medium'
+  },
+  {
+    id: 'nt-003',
+    recipientRole: 'admin',
+    category: 'system',
+    title: 'Daily Operations Digest',
+    body: 'Review scheduled appointments and overdue invoices before 6 PM.',
+    createdAt: '2026-04-21T08:30:00.000Z',
+    read: false,
+    priority: 'high'
   }
 ];

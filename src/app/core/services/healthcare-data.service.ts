@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, map, of } from 'rxjs';
 import {
+  AppNotification,
   Appointment,
   DoctorProfile,
   EncounterNote,
@@ -17,6 +18,7 @@ import {
   encounterNotesSeed,
   invoicesSeed,
   messageThreadsSeed,
+  notificationsSeed,
   prescriptionsSeed,
   reportsSeed,
   usersSeed
@@ -33,6 +35,7 @@ export class HealthcareDataService {
   private readonly prescriptionsSubject = new BehaviorSubject<Prescription[]>([...prescriptionsSeed]);
   private readonly messageThreadsSubject = new BehaviorSubject<MessageThread[]>([...messageThreadsSeed]);
   private readonly invoicesSubject = new BehaviorSubject<Invoice[]>([...invoicesSeed]);
+  private readonly notificationsSubject = new BehaviorSubject<AppNotification[]>([...notificationsSeed]);
 
   getUsers(): Observable<User[]> {
     return this.usersSubject.asObservable();
@@ -562,6 +565,225 @@ export class HealthcareDataService {
     return this.invoicesSubject.asObservable();
   }
 
+  getNotificationsForUser(userId: string, role: UserRole): Observable<AppNotification[]> {
+    return this.notificationsSubject.asObservable().pipe(
+      map((notifications) =>
+        notifications
+          .filter(
+            (notification) =>
+              notification.recipientId === userId ||
+              notification.recipientRole === role ||
+              notification.recipientRole === 'all'
+          )
+          .sort((left, right) => {
+            const leftTimestamp = new Date(left.remindAt ?? left.createdAt).getTime();
+            const rightTimestamp = new Date(right.remindAt ?? right.createdAt).getTime();
+            return rightTimestamp - leftTimestamp;
+          })
+      )
+    );
+  }
+
+  markNotificationRead(notificationId: string, userId: string, role: UserRole): AppNotification {
+    let updatedNotification: AppNotification | null = null;
+
+    this.notificationsSubject.next(
+      this.notificationsSubject.value.map((notification) => {
+        if (notification.id !== notificationId) {
+          return notification;
+        }
+
+        if (
+          notification.recipientId !== userId &&
+          notification.recipientRole !== role &&
+          notification.recipientRole !== 'all'
+        ) {
+          throw new Error('Notification cannot be marked for this user.');
+        }
+
+        updatedNotification = {
+          ...notification,
+          read: true
+        };
+
+        return updatedNotification;
+      })
+    );
+
+    if (!updatedNotification) {
+      throw new Error('Notification was not found.');
+    }
+
+    return updatedNotification;
+  }
+
+  markAllNotificationsRead(userId: string, role: UserRole): number {
+    let updatedCount = 0;
+
+    this.notificationsSubject.next(
+      this.notificationsSubject.value.map((notification) => {
+        if (
+          notification.read ||
+          (notification.recipientId !== userId && notification.recipientRole !== role && notification.recipientRole !== 'all')
+        ) {
+          return notification;
+        }
+
+        updatedCount += 1;
+        return {
+          ...notification,
+          read: true
+        };
+      })
+    );
+
+    return updatedCount;
+  }
+
+  snoozeNotification(notificationId: string, userId: string, role: UserRole, minutes = 60): AppNotification {
+    let updatedNotification: AppNotification | null = null;
+
+    this.notificationsSubject.next(
+      this.notificationsSubject.value.map((notification) => {
+        if (notification.id !== notificationId) {
+          return notification;
+        }
+
+        if (
+          notification.recipientId !== userId &&
+          notification.recipientRole !== role &&
+          notification.recipientRole !== 'all'
+        ) {
+          throw new Error('Notification cannot be snoozed for this user.');
+        }
+
+        const remindAt = new Date(Date.now() + minutes * 60000).toISOString();
+        updatedNotification = {
+          ...notification,
+          remindAt,
+          read: false
+        };
+
+        return updatedNotification;
+      })
+    );
+
+    if (!updatedNotification) {
+      throw new Error('Notification was not found.');
+    }
+
+    return updatedNotification;
+  }
+
+  syncRemindersForUser(userId: string, role: UserRole): void {
+    const now = new Date();
+    const reminders: AppNotification[] = [];
+
+    if (role === 'patient') {
+      this.appointmentsSubject.value
+        .filter(
+          (appointment) =>
+            appointment.patientId === userId &&
+            ['requested', 'scheduled', 'rescheduled'].includes(appointment.status) &&
+            new Date(appointment.startsAt).getTime() > now.getTime()
+        )
+        .forEach((appointment) => {
+          reminders.push({
+            id: `rem-ap-${appointment.id}-${userId}`,
+            recipientId: userId,
+            category: 'appointment',
+            title: 'Upcoming Consultation Reminder',
+            body: `Appointment ${appointment.id} is scheduled on ${new Date(appointment.startsAt).toLocaleString()}.`,
+            createdAt: now.toISOString(),
+            remindAt: appointment.startsAt,
+            read: false,
+            priority: 'high'
+          });
+        });
+
+      this.invoicesSubject.value
+        .filter((invoice) => invoice.patientId === userId && invoice.status !== 'paid')
+        .forEach((invoice) => {
+          reminders.push({
+            id: `rem-inv-${invoice.id}-${userId}`,
+            recipientId: userId,
+            category: 'billing',
+            title: invoice.status === 'overdue' ? 'Overdue Invoice Alert' : 'Pending Invoice Reminder',
+            body: `Invoice ${invoice.id} for INR ${invoice.amount} is currently ${invoice.status}.`,
+            createdAt: now.toISOString(),
+            read: false,
+            priority: invoice.status === 'overdue' ? 'high' : 'medium'
+          });
+        });
+    }
+
+    if (role === 'doctor') {
+      this.appointmentsSubject.value
+        .filter(
+          (appointment) =>
+            appointment.doctorId === userId &&
+            ['requested', 'scheduled', 'rescheduled'].includes(appointment.status) &&
+            new Date(appointment.startsAt).getTime() > now.getTime()
+        )
+        .forEach((appointment) => {
+          reminders.push({
+            id: `rem-doc-ap-${appointment.id}-${userId}`,
+            recipientId: userId,
+            category: 'appointment',
+            title: 'Provider Schedule Reminder',
+            body: `You have an upcoming ${appointment.mode} appointment at ${new Date(appointment.startsAt).toLocaleString()}.`,
+            createdAt: now.toISOString(),
+            remindAt: appointment.startsAt,
+            read: false,
+            priority: 'medium'
+          });
+        });
+    }
+
+    if (role === 'admin') {
+      this.appointmentsSubject.value
+        .filter(
+          (appointment) =>
+            ['requested', 'scheduled'].includes(appointment.status) &&
+            new Date(appointment.startsAt).getTime() > now.getTime()
+        )
+        .forEach((appointment) => {
+          reminders.push({
+            id: `rem-admin-ap-${appointment.id}`,
+            recipientRole: 'admin',
+            category: 'appointment',
+            title: 'Operational Appointment Watch',
+            body: `Track appointment ${appointment.id} (${appointment.status}) planned for ${new Date(appointment.startsAt).toLocaleString()}.`,
+            createdAt: now.toISOString(),
+            remindAt: appointment.startsAt,
+            read: false,
+            priority: 'medium'
+          });
+        });
+
+      this.invoicesSubject.value
+        .filter((invoice) => invoice.status === 'overdue')
+        .forEach((invoice) => {
+          reminders.push({
+            id: `rem-admin-inv-${invoice.id}`,
+            recipientRole: 'admin',
+            category: 'billing',
+            title: 'Overdue Billing Escalation',
+            body: `Invoice ${invoice.id} for patient ${invoice.patientId} is overdue (INR ${invoice.amount}).`,
+            createdAt: now.toISOString(),
+            read: false,
+            priority: 'high'
+          });
+        });
+    }
+
+    if (!reminders.length) {
+      return;
+    }
+
+    this.upsertNotifications(reminders);
+  }
+
   private isDoctorAvailableForSlot(profile: DoctorProfile, startsAt: Date): boolean {
     if (!profile.acceptingAppointments) {
       return false;
@@ -574,5 +796,21 @@ export class HealthcareDataService {
 
     const requestedTime = `${`${startsAt.getHours()}`.padStart(2, '0')}:${`${startsAt.getMinutes()}`.padStart(2, '0')}`;
     return requestedTime >= profile.shiftStart && requestedTime <= profile.shiftEnd;
+  }
+
+  private upsertNotifications(notifications: AppNotification[]): void {
+    const notificationMap = new Map(this.notificationsSubject.value.map((notification) => [notification.id, notification]));
+
+    notifications.forEach((notification) => {
+      const existing = notificationMap.get(notification.id);
+      notificationMap.set(notification.id, {
+        ...notification,
+        createdAt: existing?.createdAt ?? notification.createdAt,
+        read: existing?.read ?? notification.read,
+        remindAt: notification.remindAt ?? existing?.remindAt
+      });
+    });
+
+    this.notificationsSubject.next(Array.from(notificationMap.values()));
   }
 }

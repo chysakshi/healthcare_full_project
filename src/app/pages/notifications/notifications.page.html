@@ -1,0 +1,79 @@
+<section class="notifications-page">
+  <header>
+    <h1>Notifications and Reminders</h1>
+    <p>Track critical updates, appointment alerts, and billing reminders from one operational feed.</p>
+  </header>
+
+  <section class="summary-grid" *ngIf="!isLoading; else loadingState">
+    <article class="summary-card">
+      <h2>Unread</h2>
+      <strong>{{ unreadCount }}</strong>
+      <p>Actionable notifications pending review</p>
+    </article>
+    <article class="summary-card">
+      <h2>High Priority</h2>
+      <strong>{{ highPriorityCount }}</strong>
+      <p>Escalated alerts requiring prompt action</p>
+    </article>
+    <article class="summary-card">
+      <h2>Due Soon</h2>
+      <strong>{{ dueSoonCount }}</strong>
+      <p>Reminder windows in the next two hours</p>
+    </article>
+  </section>
+
+  <section class="panel filter-panel" *ngIf="!isLoading">
+    <h2>Notification Filters</h2>
+    <div class="filter-row">
+      <button type="button" [class.is-active]="selectedFilter === 'all'" (click)="applyFilter('all')">All</button>
+      <button type="button" [class.is-active]="selectedFilter === 'unread'" (click)="applyFilter('unread')">Unread</button>
+      <button type="button" [class.is-active]="selectedFilter === 'appointment'" (click)="applyFilter('appointment')">Appointments</button>
+      <button type="button" [class.is-active]="selectedFilter === 'billing'" (click)="applyFilter('billing')">Billing</button>
+      <button type="button" [class.is-active]="selectedFilter === 'message'" (click)="applyFilter('message')">Messages</button>
+      <button type="button" [class.is-active]="selectedFilter === 'system'" (click)="applyFilter('system')">System</button>
+      <button type="button" class="mark-all" (click)="markAllAsRead()">Mark All Read</button>
+    </div>
+
+    <p class="status success" *ngIf="statusMessage">{{ statusMessage }}</p>
+    <p class="status error" *ngIf="errorMessage">{{ errorMessage }}</p>
+  </section>
+
+  <section class="panel feed-panel" *ngIf="!isLoading">
+    <h2>Reminder Feed</h2>
+
+    <div class="notification-grid" *ngIf="filteredNotifications.length; else emptyState">
+      <article class="notification-card" *ngFor="let notification of filteredNotifications" [class.is-unread]="!notification.read">
+        <div class="card-head">
+          <strong>{{ notification.title }}</strong>
+          <span class="priority-chip" [class]="'priority-chip ' + notification.priority">{{ notification.priority | titlecase }}</span>
+        </div>
+
+        <p>{{ notification.body }}</p>
+
+        <div class="meta-row">
+          <span>{{ formatTimestamp(notification) }}</span>
+          <span class="category-chip">{{ notification.category | titlecase }}</span>
+          <span class="due-soon" *ngIf="isDueSoon(notification)">Due Soon</span>
+        </div>
+
+        <div class="action-row">
+          <button type="button" class="secondary" *ngIf="!notification.read" (click)="markAsRead(notification.id)">Mark Read</button>
+          <button type="button" *ngIf="notification.category === 'appointment' || notification.category === 'billing'" (click)="snoozeNotification(notification.id)">
+            Snooze 90m
+          </button>
+        </div>
+      </article>
+    </div>
+
+    <ng-template #emptyState>
+      <p class="empty">No notifications available for the current filter.</p>
+    </ng-template>
+  </section>
+
+  <ng-template #loadingState>
+    <section class="panel">
+      <h2>Notifications</h2>
+      <p class="empty">Loading notification timeline...</p>
+    </section>
+  </ng-template>
+</section>

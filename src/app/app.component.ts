@@ -30,6 +30,7 @@ export class AppComponent {
     { label: 'Billing', link: '/billing', access: ['patient', 'admin'] },
     { label: 'Doctor Directory', link: '/patient/doctors', access: ['patient', 'admin'] },
     { label: 'Messages', link: '/messages', access: ['patient', 'doctor', 'admin'] },
+    { label: 'Notifications', link: '/notifications', access: ['patient', 'doctor', 'admin'] },
     { label: 'Doctor Dashboard', link: '/doctor/dashboard', access: ['doctor', 'admin'] },
     { label: 'Admin Dashboard', link: '/admin/dashboard', access: ['admin'] }
   ];

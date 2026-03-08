@@ -96,3 +96,18 @@ export interface MessageThread {
   updatedAt: string;
   messages: ThreadMessage[];
 }
+
+export type NotificationPriority = 'low' | 'medium' | 'high';
+
+export interface AppNotification {
+  id: string;
+  recipientId?: string;
+  recipientRole?: UserRole | 'all';
+  category: 'system' | 'appointment' | 'billing' | 'message' | 'report';
+  title: string;
+  body: string;
+  createdAt: string;
+  remindAt?: string;
+  read: boolean;
+  priority: NotificationPriority;
+}
