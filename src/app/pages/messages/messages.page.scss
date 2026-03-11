@@ -30,6 +30,25 @@ header p {
   background: linear-gradient(180deg, #fff7ed 0%, #ffffff 100%);
 }
 
+.search-field {
+  margin-top: 10px;
+  display: grid;
+  gap: 6px;
+  color: #334155;
+  font-weight: 700;
+}
+
+.search-field input {
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  padding: 9px 10px;
+  font: inherit;
+}
+
+.search-field.message-search {
+  margin-top: 12px;
+}
+
 .thread-list h2,
 .conversation-panel h2 {
   margin: 0;
@@ -165,6 +184,34 @@ header p {
 
 .status.error {
   color: #b91c1c;
+}
+
+.pagination {
+  margin-top: 12px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+}
+
+.pagination button {
+  border: 0;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #f97316, #ea580c);
+  color: #ffffff;
+  font-weight: 700;
+  padding: 7px 12px;
+  cursor: pointer;
+}
+
+.pagination button[disabled] {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.pagination span {
+  color: #475569;
+  font-weight: 700;
 }
 
 @media (max-width: 900px) {

@@ -18,7 +18,12 @@ export class NotificationsPageComponent implements OnInit {
   protected currentUser: User | null = null;
   protected readonly notifications: AppNotification[] = [];
   protected readonly filteredNotifications: AppNotification[] = [];
+  protected readonly pagedNotifications: AppNotification[] = [];
   protected selectedFilter: NotificationFilter = 'all';
+  protected searchQuery = '';
+  protected currentPage = 1;
+  protected readonly pageSize = 4;
+  protected totalPages = 1;
   protected isLoading = true;
   protected statusMessage = '';
   protected errorMessage = '';
@@ -46,27 +51,81 @@ export class NotificationsPageComponent implements OnInit {
     this.healthcareDataService.getNotificationsForUser(user.id, user.role).subscribe((notifications) => {
       this.notifications.splice(0, this.notifications.length, ...notifications);
       this.refreshSummary();
-      this.applyFilter(this.selectedFilter);
+      this.refreshNotificationView();
       this.isLoading = false;
     });
   }
 
   protected applyFilter(filter: NotificationFilter): void {
     this.selectedFilter = filter;
+    this.currentPage = 1;
+    this.refreshNotificationView();
+  }
+
+  protected applySearch(): void {
+    this.currentPage = 1;
+    this.refreshNotificationView();
+  }
+
+  protected previousPage(): void {
+    if (this.currentPage <= 1) {
+      return;
+    }
+
+    this.currentPage -= 1;
+    this.refreshPagination();
+  }
+
+  protected nextPage(): void {
+    if (this.currentPage >= this.totalPages) {
+      return;
+    }
+
+    this.currentPage += 1;
+    this.refreshPagination();
+  }
+
+  private refreshNotificationView(): void {
+    const normalizedQuery = this.searchQuery.trim().toLowerCase();
+
     this.filteredNotifications.splice(
       0,
       this.filteredNotifications.length,
       ...this.notifications.filter((notification) => {
-        if (filter === 'all') {
-          return true;
+        const matchesQuery =
+          !normalizedQuery ||
+          notification.title.toLowerCase().includes(normalizedQuery) ||
+          notification.body.toLowerCase().includes(normalizedQuery) ||
+          notification.category.toLowerCase().includes(normalizedQuery) ||
+          notification.priority.toLowerCase().includes(normalizedQuery);
+
+        if (this.selectedFilter === 'all') {
+          return matchesQuery;
         }
 
-        if (filter === 'unread') {
-          return !notification.read;
+        if (this.selectedFilter === 'unread') {
+          return !notification.read && matchesQuery;
         }
 
-        return notification.category === filter;
+        return notification.category === this.selectedFilter && matchesQuery;
       })
+    );
+
+    this.refreshPagination();
+  }
+
+  private refreshPagination(): void {
+    this.totalPages = Math.max(1, Math.ceil(this.filteredNotifications.length / this.pageSize));
+    if (this.currentPage > this.totalPages) {
+      this.currentPage = this.totalPages;
+    }
+
+    const startIndex = (this.currentPage - 1) * this.pageSize;
+    const endIndex = startIndex + this.pageSize;
+    this.pagedNotifications.splice(
+      0,
+      this.pagedNotifications.length,
+      ...this.filteredNotifications.slice(startIndex, endIndex)
     );
   }
 

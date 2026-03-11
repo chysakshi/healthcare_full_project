@@ -24,8 +24,14 @@ interface ConversationView {
 export class MessagesPageComponent implements OnInit {
   protected currentUser: User | null = null;
   protected readonly conversations: ConversationView[] = [];
+  protected readonly pagedConversations: ConversationView[] = [];
   protected selectedConversation: ConversationView | null = null;
   protected selectedConversationId = '';
+  protected threadSearchQuery = '';
+  protected messageSearchQuery = '';
+  protected currentPage = 1;
+  protected readonly pageSize = 5;
+  protected totalPages = 1;
   protected draftMessage = '';
   protected statusMessage = '';
   protected errorMessage = '';
@@ -63,6 +69,43 @@ export class MessagesPageComponent implements OnInit {
     this.statusMessage = '';
     this.errorMessage = '';
     this.healthcareDataService.markThreadRead(conversationId);
+  }
+
+  protected applyThreadSearch(): void {
+    this.currentPage = 1;
+    this.refreshThreadPagination();
+  }
+
+  protected previousPage(): void {
+    if (this.currentPage <= 1) {
+      return;
+    }
+
+    this.currentPage -= 1;
+    this.refreshThreadPagination();
+  }
+
+  protected nextPage(): void {
+    if (this.currentPage >= this.totalPages) {
+      return;
+    }
+
+    this.currentPage += 1;
+    this.refreshThreadPagination();
+  }
+
+  protected getVisibleMessages(messages: ThreadMessage[]): ThreadMessage[] {
+    const normalizedQuery = this.messageSearchQuery.trim().toLowerCase();
+    if (!normalizedQuery) {
+      return messages;
+    }
+
+    return messages.filter(
+      (message) =>
+        message.content.toLowerCase().includes(normalizedQuery) ||
+        message.senderRole.toLowerCase().includes(normalizedQuery) ||
+        new Date(message.sentAt).toLocaleString().toLowerCase().includes(normalizedQuery)
+    );
   }
 
   protected sendMessage(): void {
@@ -123,8 +166,29 @@ export class MessagesPageComponent implements OnInit {
         this.selectedConversation = this.conversations.find((entry) => entry.id === this.selectedConversationId) ?? null;
       }
 
+      this.refreshThreadPagination();
+
       this.isLoading = false;
     });
+  }
+
+  private refreshThreadPagination(): void {
+    const normalizedQuery = this.threadSearchQuery.trim().toLowerCase();
+    const filtered = this.conversations.filter(
+      (conversation) =>
+        !normalizedQuery ||
+        conversation.title.toLowerCase().includes(normalizedQuery) ||
+        conversation.subtitle.toLowerCase().includes(normalizedQuery)
+    );
+
+    this.totalPages = Math.max(1, Math.ceil(filtered.length / this.pageSize));
+    if (this.currentPage > this.totalPages) {
+      this.currentPage = this.totalPages;
+    }
+
+    const startIndex = (this.currentPage - 1) * this.pageSize;
+    const endIndex = startIndex + this.pageSize;
+    this.pagedConversations.splice(0, this.pagedConversations.length, ...filtered.slice(startIndex, endIndex));
   }
 
   private mapConversation(thread: MessageThread): ConversationView {

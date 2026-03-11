@@ -61,6 +61,21 @@ header p {
   gap: 8px;
 }
 
+.search-field {
+  margin-top: 10px;
+  display: grid;
+  gap: 6px;
+  color: #334155;
+  font-weight: 700;
+}
+
+.search-field input {
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  padding: 9px 10px;
+  font: inherit;
+}
+
 .filter-row button {
   border: 1px solid #c7d2fe;
   border-radius: 999px;
@@ -201,6 +216,34 @@ header p {
 .empty {
   margin: 8px 0 0;
   color: #64748b;
+}
+
+.pagination {
+  margin-top: 12px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+}
+
+.pagination button {
+  border: 0;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #0f766e, #0e7490);
+  color: #ffffff;
+  font-weight: 700;
+  padding: 7px 12px;
+  cursor: pointer;
+}
+
+.pagination button[disabled] {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.pagination span {
+  color: #475569;
+  font-weight: 700;
 }
 
 @media (max-width: 900px) {

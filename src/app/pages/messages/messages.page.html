@@ -7,12 +7,23 @@
   <section class="messages-layout" *ngIf="!isLoading; else loadingState">
     <aside class="thread-list panel">
       <h2>Conversations</h2>
+      <label class="search-field">
+        Search conversations
+        <input
+          type="text"
+          [(ngModel)]="threadSearchQuery"
+          (ngModelChange)="applyThreadSearch()"
+          placeholder="Search by participant or last message"
+        />
+      </label>
+
       <p class="empty" *ngIf="!conversations.length">No conversations available yet.</p>
+      <p class="empty" *ngIf="conversations.length && !pagedConversations.length">No conversation matches your search.</p>
 
       <button
         type="button"
         class="thread-card"
-        *ngFor="let conversation of conversations"
+        *ngFor="let conversation of pagedConversations"
         [class.is-active]="conversation.id === selectedConversationId"
         (click)="selectConversation(conversation.id)"
       >
@@ -25,21 +36,37 @@
           <span class="badge" *ngIf="conversation.unreadCount">{{ conversation.unreadCount }}</span>
         </div>
       </button>
+
+      <div class="pagination" *ngIf="conversations.length > pageSize">
+        <button type="button" (click)="previousPage()" [disabled]="currentPage === 1">Previous</button>
+        <span>Page {{ currentPage }} of {{ totalPages }}</span>
+        <button type="button" (click)="nextPage()" [disabled]="currentPage === totalPages">Next</button>
+      </div>
     </aside>
 
     <section class="conversation-panel panel" *ngIf="selectedConversation as conversation; else emptyConversation">
       <h2>{{ conversation.title }}</h2>
       <p class="helper">Latest update: {{ conversation.updatedAt }}</p>
 
+      <label class="search-field message-search">
+        Search messages
+        <input
+          type="text"
+          [(ngModel)]="messageSearchQuery"
+          placeholder="Search content, sender role, or timestamp"
+        />
+      </label>
+
       <div class="message-stream">
         <article
           class="message-bubble"
-          *ngFor="let message of conversation.messages"
+          *ngFor="let message of getVisibleMessages(conversation.messages)"
           [class.own-message]="isOwnMessage(message.senderId)"
         >
           <p>{{ message.content }}</p>
           <small>{{ message.senderRole | titlecase }} | {{ message.sentAt | date:'medium' }}</small>
         </article>
+        <p class="empty" *ngIf="!getVisibleMessages(conversation.messages).length">No messages matched your search.</p>
       </div>
 
       <div class="composer" *ngIf="currentUser?.role !== 'admin'; else readOnlyState">

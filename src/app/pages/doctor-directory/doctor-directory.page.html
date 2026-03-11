@@ -4,8 +4,36 @@
     <p>Browse specialists, review availability, and open complete doctor profiles.</p>
   </header>
 
+  <section class="controls" aria-label="Directory filters">
+    <label>
+      Search
+      <input
+        type="text"
+        [(ngModel)]="searchQuery"
+        (ngModelChange)="applyFilters()"
+        placeholder="Search by doctor, specialization, or language"
+      />
+    </label>
+
+    <label>
+      Specialization
+      <select [(ngModel)]="selectedSpecialization" (ngModelChange)="applyFilters()">
+        <option value="all">All</option>
+        <option *ngFor="let specialization of specializationOptions" [value]="specialization">{{ specialization }}</option>
+      </select>
+    </label>
+
+    <label>
+      Available Day
+      <select [(ngModel)]="selectedDay" (ngModelChange)="applyFilters()">
+        <option value="all">Any Day</option>
+        <option *ngFor="let day of dayOptions" [value]="day">{{ day }}</option>
+      </select>
+    </label>
+  </section>
+
   <section class="directory-grid" aria-label="Doctor directory">
-    <article class="doctor-card" *ngFor="let doctor of doctors">
+    <article class="doctor-card" *ngFor="let doctor of pagedDoctors">
       <h2>{{ doctor.user.fullName }}</h2>
       <p class="specialization">{{ doctor.profile.specialization }}</p>
 
@@ -24,4 +52,12 @@
       <a [routerLink]="['/patient/doctors', doctor.user.id]">View Profile</a>
     </article>
   </section>
+
+  <p class="empty" *ngIf="!filteredDoctors.length">No doctors matched the current search and filters.</p>
+
+  <div class="pagination" *ngIf="filteredDoctors.length > pageSize">
+    <button type="button" (click)="previousPage()" [disabled]="currentPage === 1">Previous</button>
+    <span>Page {{ currentPage }} of {{ totalPages }}</span>
+    <button type="button" (click)="nextPage()" [disabled]="currentPage === totalPages">Next</button>
+  </div>
 </section>

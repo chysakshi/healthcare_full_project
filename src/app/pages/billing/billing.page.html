@@ -25,6 +25,16 @@
 
   <section class="panel filter-panel" *ngIf="!isLoading">
     <h2>Invoice Filter</h2>
+    <label class="search-field">
+      Search invoices
+      <input
+        type="text"
+        [(ngModel)]="searchQuery"
+        (ngModelChange)="applySearch()"
+        placeholder="Search by invoice id, patient id, status, or amount"
+      />
+    </label>
+
     <div class="filter-row">
       <button type="button" [class.is-active]="selectedFilter === 'all'" (click)="applyFilter('all')">All</button>
       <button type="button" [class.is-active]="selectedFilter === 'pending'" (click)="applyFilter('pending')">Pending</button>
@@ -40,7 +50,7 @@
     <h2>Invoice Ledger</h2>
 
     <div class="invoice-grid" *ngIf="filteredInvoices.length; else emptyState">
-      <article class="invoice-card" *ngFor="let invoice of filteredInvoices">
+      <article class="invoice-card" *ngFor="let invoice of pagedInvoices">
         <div class="invoice-head">
           <strong>{{ invoice.id }}</strong>
           <span class="status-chip" [class]="'status-chip ' + invoice.status">{{ invoice.status | titlecase }}</span>
@@ -52,6 +62,12 @@
 
         <button type="button" *ngIf="canPay(invoice)" (click)="payInvoice(invoice.id)">Pay Invoice</button>
       </article>
+    </div>
+
+    <div class="pagination" *ngIf="filteredInvoices.length > pageSize">
+      <button type="button" (click)="previousPage()" [disabled]="currentPage === 1">Previous</button>
+      <span>Page {{ currentPage }} of {{ totalPages }}</span>
+      <button type="button" (click)="nextPage()" [disabled]="currentPage === totalPages">Next</button>
     </div>
 
     <ng-template #emptyState>

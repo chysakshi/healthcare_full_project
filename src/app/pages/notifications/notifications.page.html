@@ -24,6 +24,16 @@
 
   <section class="panel filter-panel" *ngIf="!isLoading">
     <h2>Notification Filters</h2>
+    <label class="search-field">
+      Search notifications
+      <input
+        type="text"
+        [(ngModel)]="searchQuery"
+        (ngModelChange)="applySearch()"
+        placeholder="Search by title, text, category, or priority"
+      />
+    </label>
+
     <div class="filter-row">
       <button type="button" [class.is-active]="selectedFilter === 'all'" (click)="applyFilter('all')">All</button>
       <button type="button" [class.is-active]="selectedFilter === 'unread'" (click)="applyFilter('unread')">Unread</button>
@@ -42,7 +52,7 @@
     <h2>Reminder Feed</h2>
 
     <div class="notification-grid" *ngIf="filteredNotifications.length; else emptyState">
-      <article class="notification-card" *ngFor="let notification of filteredNotifications" [class.is-unread]="!notification.read">
+      <article class="notification-card" *ngFor="let notification of pagedNotifications" [class.is-unread]="!notification.read">
         <div class="card-head">
           <strong>{{ notification.title }}</strong>
           <span class="priority-chip" [class]="'priority-chip ' + notification.priority">{{ notification.priority | titlecase }}</span>
@@ -63,6 +73,12 @@
           </button>
         </div>
       </article>
+    </div>
+
+    <div class="pagination" *ngIf="filteredNotifications.length > pageSize">
+      <button type="button" (click)="previousPage()" [disabled]="currentPage === 1">Previous</button>
+      <span>Page {{ currentPage }} of {{ totalPages }}</span>
+      <button type="button" (click)="nextPage()" [disabled]="currentPage === totalPages">Next</button>
     </div>
 
     <ng-template #emptyState>

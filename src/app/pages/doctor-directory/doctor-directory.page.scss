@@ -3,6 +3,31 @@
   gap: 18px;
 }
 
+.controls {
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  background: linear-gradient(140deg, #f8fafc 0%, #ffffff 100%);
+  padding: 14px;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.controls label {
+  display: grid;
+  gap: 6px;
+  color: #334155;
+  font-weight: 700;
+}
+
+.controls input,
+.controls select {
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  padding: 9px 10px;
+  font: inherit;
+}
+
 header h1 {
   margin: 0;
   color: #0f172a;
@@ -62,7 +87,40 @@ header p {
   color: #0e7490;
 }
 
+.empty {
+  margin: 0;
+  color: #64748b;
+}
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+}
+
+.pagination button {
+  border: 0;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #0891b2, #0e7490);
+  color: #ffffff;
+  font-weight: 700;
+  padding: 7px 12px;
+  cursor: pointer;
+}
+
+.pagination button[disabled] {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.pagination span {
+  color: #475569;
+  font-weight: 700;
+}
+
 @media (max-width: 900px) {
+  .controls,
   .directory-grid {
     grid-template-columns: 1fr;
   }
