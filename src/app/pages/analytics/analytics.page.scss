@@ -1,0 +1,130 @@
+.analytics-page {
+  display: grid;
+  gap: 16px;
+}
+
+header h1 {
+  margin: 0;
+  color: #0f172a;
+}
+
+header p {
+  margin: 8px 0 0;
+  color: #475569;
+}
+
+.metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.metric-card,
+.panel {
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  background: #ffffff;
+  padding: 14px;
+}
+
+.metric-card {
+  background: linear-gradient(155deg, #eff6ff 0%, #ffffff 100%);
+}
+
+.metric-card h2,
+.panel h2 {
+  margin: 0;
+  color: #334155;
+  font-size: 1rem;
+}
+
+.metric-card strong {
+  display: block;
+  margin: 8px 0 4px;
+  color: #1d4ed8;
+  font-size: 1.5rem;
+}
+
+.metric-card p {
+  margin: 0;
+  color: #64748b;
+}
+
+.breakdown-panel {
+  background: linear-gradient(160deg, #fff7ed 0%, #ffffff 100%);
+}
+
+.breakdown-list {
+  margin-top: 10px;
+  display: grid;
+  gap: 10px;
+}
+
+.row-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  color: #334155;
+}
+
+.progress-track {
+  margin-top: 6px;
+  height: 10px;
+  border-radius: 999px;
+  background: #e2e8f0;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  border-radius: 999px;
+}
+
+.progress-fill.appointment {
+  background: linear-gradient(135deg, #0284c7, #0ea5e9);
+}
+
+.progress-fill.billing {
+  background: linear-gradient(135deg, #f97316, #ea580c);
+}
+
+.trends-panel {
+  background: linear-gradient(160deg, #ecfdf5 0%, #ffffff 100%);
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+}
+
+th,
+td {
+  border-bottom: 1px solid #e2e8f0;
+  padding: 9px;
+  text-align: left;
+  color: #334155;
+}
+
+th {
+  color: #0f172a;
+  font-size: 0.9rem;
+}
+
+.empty,
+.error {
+  margin: 8px 0 0;
+  color: #64748b;
+}
+
+.error {
+  color: #b91c1c;
+  font-weight: 700;
+}
+
+@media (max-width: 900px) {
+  .metrics-grid {
+    grid-template-columns: 1fr;
+  }
+}

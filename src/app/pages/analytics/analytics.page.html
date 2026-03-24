@@ -1,0 +1,83 @@
+<section class="analytics-page">
+  <header>
+    <h1>Analytics and Reporting</h1>
+    <p>Monitor outcome trends, operational load, and billing movement through role-aware performance insights.</p>
+  </header>
+
+  <section class="metrics-grid" *ngIf="!isLoading; else loadingState">
+    <article class="metric-card" *ngFor="let card of metricCards">
+      <h2>{{ card.label }}</h2>
+      <strong>{{ card.value }}</strong>
+      <p>{{ card.hint }}</p>
+    </article>
+  </section>
+
+  <section class="panel breakdown-panel" *ngIf="!isLoading">
+    <h2>Appointment Status Distribution</h2>
+    <div class="breakdown-list">
+      <article *ngFor="let row of appointmentBreakdown">
+        <div class="row-head">
+          <strong>{{ row.label | titlecase }}</strong>
+          <span>{{ row.value }} ({{ row.percent }}%)</span>
+        </div>
+        <div class="progress-track">
+          <div class="progress-fill appointment" [style.width.%]="row.percent"></div>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section class="panel breakdown-panel" *ngIf="!isLoading">
+    <h2>Billing Status Distribution</h2>
+    <div class="breakdown-list">
+      <article *ngFor="let row of billingBreakdown">
+        <div class="row-head">
+          <strong>{{ row.label | titlecase }}</strong>
+          <span>{{ row.value }} ({{ row.percent }}%)</span>
+        </div>
+        <div class="progress-track">
+          <div class="progress-fill billing" [style.width.%]="row.percent"></div>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section class="panel trends-panel" *ngIf="!isLoading">
+    <h2>Monthly Activity Trend</h2>
+
+    <table *ngIf="monthlyTrends.length; else emptyTrend">
+      <thead>
+        <tr>
+          <th>Month</th>
+          <th>Appointments</th>
+          <th>Invoices</th>
+          <th>Messages</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let trend of monthlyTrends">
+          <td>{{ trend.monthLabel }}</td>
+          <td>{{ trend.appointments }}</td>
+          <td>{{ trend.invoices }}</td>
+          <td>{{ trend.messages }}</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <ng-template #emptyTrend>
+      <p class="empty">No trend activity is available yet for this user scope.</p>
+    </ng-template>
+  </section>
+
+  <section class="panel" *ngIf="analyticsError">
+    <h2>Analytics</h2>
+    <p class="error">{{ analyticsError }}</p>
+  </section>
+
+  <ng-template #loadingState>
+    <section class="panel">
+      <h2>Analytics</h2>
+      <p class="empty">Loading analytics datasets...</p>
+    </section>
+  </ng-template>
+</section>

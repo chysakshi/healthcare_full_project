@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { guestOnlyGuard, roleGuard } from './core/guards/auth.guards';
 import { AdminDashboardPageComponent } from './pages/admin-dashboard/admin-dashboard.page';
+import { AnalyticsPageComponent } from './pages/analytics/analytics.page';
 import { BillingPageComponent } from './pages/billing/billing.page';
 import { DoctorDirectoryPageComponent } from './pages/doctor-directory/doctor-directory.page';
 import { DoctorDashboardPageComponent } from './pages/doctor-dashboard/doctor-dashboard.page';
@@ -24,6 +25,7 @@ export const routes: Routes = [
 	{ path: 'patient/doctors/:doctorId', component: DoctorProfilePageComponent, canActivate: [roleGuard('patient')] },
 	{ path: 'messages', component: MessagesPageComponent, canActivate: [roleGuard(['patient', 'doctor', 'admin'])] },
 	{ path: 'notifications', component: NotificationsPageComponent, canActivate: [roleGuard(['patient', 'doctor', 'admin'])] },
+	{ path: 'analytics', component: AnalyticsPageComponent, canActivate: [roleGuard(['patient', 'doctor', 'admin'])] },
 	{ path: 'doctor/dashboard', component: DoctorDashboardPageComponent, canActivate: [roleGuard('doctor')] },
 	{ path: 'admin/dashboard', component: AdminDashboardPageComponent, canActivate: [roleGuard('admin')] },
 	{ path: '**', component: NotFoundPageComponent }
